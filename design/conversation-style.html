@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DevBot v0.5 · 会话历史样式对照（v0.4 → DSH 同族）</title>
+<style>
+/* ==========================================================================
+   DevBot v0.5 设计稿 · 会话历史样式对照
+   左：v0.4 现状（头像 + 气泡，旧值仅用于对照复刻）
+   右：v0.5 新版（DSH 主会话同族：assistant 直排 + markdown、用户胶囊、成员头合并）
+   颜色/圆角只用 --dsw-alias-* / --dsw-specific-bubble / --dsw-radius-*。
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+  --dsw-alias-label-primary: #F9FAFB;
+  --dsw-alias-label-secondary: #CFD3D6;
+  --dsw-alias-label-tertiary: #ADB2B8;
+  --dsw-alias-label-caption: #81858C;
+  --dsw-alias-bg-base: #151517;
+  --dsw-alias-bg-layer-1: #232324;
+  --dsw-alias-bg-layer-2: #2C2C2E;
+  --dsw-alias-bg-overlay: #61666B;
+  --dsw-alias-border-l1: rgba(255, 255, 255, .06);
+  --dsw-alias-border-l2: rgba(255, 255, 255, .12);
+  --dsw-alias-border-l3: rgba(255, 255, 255, .16);
+  --dsw-alias-border-l4: rgba(255, 255, 255, .20);
+  --dsw-alias-link: #7AAAFF;
+  --dsw-alias-state-success-primary: #22C55E;
+  --dsw-alias-state-warn-primary: #F59E0B;
+  --dsw-alias-state-error-primary: #F25A5A;
+  --dsw-alias-markdown-code-block: #1B1B1C;
+  --dsw-alias-markdown-code-block-banner: #2C2C2E;
+  --dsw-alias-markdown-inline-code: #292929;
+  --dsw-alias-interactive-bg-hover: rgba(255, 255, 255, .08);
+  --dsw-specific-bubble: #2C2C2E;
+
+  --dsw-radius-xs: 4px;
+  --dsw-radius-sm: 8px;
+  --dsw-radius-md: 12px;
+  --dsw-radius-lg: 16px;
+  --dsw-radius-xl: 20px;
+  --dsw-radius-panel: 28px;
+
+  /* 角色色只由 alias token 派生，只用于头像底/字母 */
+  --role-lead: var(--dsw-alias-link);
+  --role-pm: var(--dsw-alias-state-warn-primary);
+  --role-designer: color-mix(in srgb, var(--dsw-alias-link) 55%, var(--dsw-alias-state-error-primary));
+  --role-fullstack: var(--dsw-alias-state-success-primary);
+  --role-tester: var(--dsw-alias-state-error-primary);
+  --role-system: var(--dsw-alias-label-caption);
+
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", "Fira Code", Consolas, "Liberation Mono", Menlo, Courier, "PingFang SC", "Microsoft YaHei";
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --dsw-alias-label-primary: #0F1115;
+  --dsw-alias-label-secondary: #61666B;
+  --dsw-alias-label-tertiary: #81858C;
+  --dsw-alias-label-caption: #ADB2B8;
+  --dsw-alias-bg-base: #FFFFFF;
+  --dsw-alias-bg-layer-1: #FFFFFF;
+  --dsw-alias-bg-layer-2: #FFFFFF;
+  --dsw-alias-bg-overlay: #E9ECF2;
+  --dsw-alias-border-l1: rgba(0, 0, 0, .04);
+  --dsw-alias-border-l2: rgba(0, 0, 0, .10);
+  --dsw-alias-border-l3: rgba(0, 0, 0, .12);
+  --dsw-alias-border-l4: rgba(0, 0, 0, .16);
+  --dsw-alias-link: #4176E6;
+  --dsw-alias-state-success-primary: #22C55E;
+  --dsw-alias-state-warn-primary: #F59E0B;
+  --dsw-alias-state-error-primary: #EC1313;
+  --dsw-alias-markdown-code-block: #F9FAFB;
+  --dsw-alias-markdown-code-block-banner: #F9FAFB;
+  --dsw-alias-markdown-inline-code: #FAFAFA;
+  --dsw-alias-interactive-bg-hover: rgba(38, 49, 72, .06);
+  --dsw-specific-bubble: #EDF3FE;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--dsw-alias-bg-base);
+  color: var(--dsw-alias-label-primary);
+  font-family: var(--font-ui);
+  font-size: 14px; line-height: 24px;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; }
+a { color: var(--dsw-alias-link); }
+
+.doc-head { max-width: 1280px; margin: 0 auto; padding: 28px 24px 8px; }
+.doc-kicker {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  font-size: 12px; line-height: 18px; color: var(--dsw-alias-label-tertiary);
+}
+.doc-kicker .dotsep { color: var(--dsw-alias-label-caption); }
+.doc-title { margin: 8px 0 6px; font-size: 24px; line-height: 34px; font-weight: 700; letter-spacing: -.2px; }
+.doc-title span { color: var(--dsw-alias-label-tertiary); font-weight: 500; }
+.doc-sub { margin: 0; max-width: 900px; font-size: 14px; line-height: 24px; color: var(--dsw-alias-label-secondary); }
+.doc-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.btn {
+  min-height: 36px; padding: 0 12px;
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-sm);
+  background: var(--dsw-alias-bg-layer-1);
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px; line-height: 18px; cursor: pointer;
+}
+.btn:hover, .btn:focus-visible { color: var(--dsw-alias-label-primary); background: var(--dsw-alias-interactive-bg-hover); }
+.btn:focus-visible { outline: 2px solid var(--dsw-alias-state-business-primary, var(--dsw-alias-link)); outline-offset: 2px; }
+.btn[aria-pressed="true"] { color: var(--dsw-alias-label-primary); background: var(--dsw-alias-interactive-bg-hover); border-color: var(--dsw-alias-border-l3); }
+
+.legend { max-width: 1280px; margin: 0 auto; padding: 8px 24px 0; display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary); }
+.legend b { color: var(--dsw-alias-label-secondary); font-weight: 600; }
+
+/* ------------------------------ 对照两栏 ------------------------------ */
+.compare {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 24px 8px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.pane {
+  min-width: 0;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-lg);
+  background: var(--dsw-alias-bg-layer-1);
+  overflow: hidden;
+}
+.pane-head {
+  padding: 14px 16px 12px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+}
+.pane-head .badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 0 6px; height: 18px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-xs);
+  font-size: 10px; line-height: 16px; font-weight: 700;
+  color: var(--dsw-alias-label-secondary);
+}
+.pane-head .badge.new { color: var(--dsw-alias-link); border-color: color-mix(in srgb, var(--dsw-alias-link) 34%, transparent); }
+.pane-head h2 { margin: 6px 0 2px; font-size: 16px; line-height: 24px; font-weight: 700; }
+.pane-head p { margin: 0; font-size: 12px; line-height: 18px; color: var(--dsw-alias-label-tertiary); }
+.pane-body { padding: 16px; display: flex; justify-content: center; }
+
+.device {
+  width: 100%; max-width: 390px;
+  padding: 16px;
+  border: 0.5px solid var(--dsw-alias-border-l1);
+  border-radius: var(--dsw-radius-md);
+  background: var(--dsw-alias-bg-base);
+  min-width: 0;
+}
+.device-label {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin: -4px 0 12px; padding-bottom: 8px;
+  border-bottom: 0.5px dashed var(--dsw-alias-border-l1);
+  font-size: 10px; line-height: 16px; color: var(--dsw-alias-label-caption);
+  font-family: var(--font-mono);
+}
+.device-label b { color: var(--dsw-alias-label-tertiary); font-weight: 500; }
+
+/* ------------------------------ 时间线通用 ------------------------------ */
+.day { text-align: center; font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary); margin: 10px 0 12px; }
+.msg { min-width: 0; }
+.msg + .msg { margin-top: 6px; }
+.avatar {
+  width: 20px; height: 20px; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--role) 16%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--role) 34%, transparent);
+  color: color-mix(in srgb, var(--role) 74%, var(--dsw-alias-label-primary));
+  font-size: 10px; line-height: 1; font-weight: 700;
+}
+.role-lead { --role: var(--role-lead); }
+.role-pm { --role: var(--role-pm); }
+.role-designer { --role: var(--role-designer); }
+.role-fullstack { --role: var(--role-fullstack); }
+.role-tester { --role: var(--role-tester); }
+
+/* ------------------------------ v0.4 旧样式 ------------------------------ */
+.old .old-msg { display: flex; gap: 8px; margin: 8px 0; }
+.old .old-msg.reverse { flex-direction: row-reverse; }
+.old .old-avatar {
+  width: 26px; height: 26px; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--role) 80%, var(--dsw-alias-bg-base));
+  color: var(--dsw-alias-bg-base);
+  font-size: 11px; line-height: 1; font-weight: 700;
+}
+.old .old-main { min-width: 0; max-width: min(82%, 300px); }
+.old .old-head { display: flex; gap: 6px; align-items: baseline; margin-bottom: 2px; font-size: 11px; line-height: 16px; color: var(--dsw-alias-label-secondary); }
+.old .old-name { font-size: 11px; line-height: 16px; font-weight: 600; color: var(--dsw-alias-label-primary); }
+.old .old-bubble {
+  padding: 7px 10px;
+  border: 1px solid var(--dsw-alias-border-l1);
+  border-radius: calc(var(--dsw-radius-sm) + 2px);
+  background: var(--dsw-alias-bg-overlay);
+  color: var(--dsw-alias-label-primary);
+  font-size: 13px; line-height: 21px;
+  white-space: pre-wrap; word-break: break-word;
+}
+.old .old-bubble.human {
+  background: color-mix(in srgb, var(--dsw-alias-link) 14%, transparent);
+  border-color: color-mix(in srgb, var(--dsw-alias-link) 35%, transparent);
+}
+.old .old-bubble.task {
+  border-style: dashed;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px; line-height: 20px;
+}
+.old .raw-md { font-family: var(--font-mono); font-size: 12px; line-height: 20px; }
+
+/* ------------------------------ v0.5 新样式 ------------------------------ */
+.new .member-head { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; min-width: 0; }
+.new .member-name { font-size: 12px; line-height: 18px; font-weight: 600; color: var(--dsw-alias-label-secondary); }
+.new .member-time { font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary); font-variant-numeric: tabular-nums; }
+.new .member-body { min-width: 0; font-size: 14px; line-height: 24px; color: var(--dsw-alias-label-primary); }
+.new .member { margin-top: 12px; }
+.new .member.cont { margin-top: 6px; }
+
+.md { min-width: 0; overflow-wrap: anywhere; }
+.md > * { margin: 0; }
+.md > * + * { margin-top: 16px; }
+.md p { margin: 16px 0; }
+.md h1 { margin: 32px 0 16px; font-size: 21px; line-height: 30px; font-weight: 700; }
+.md h2 { margin: 32px 0 16px; font-size: 19px; line-height: 28px; font-weight: 700; }
+.md h3 { margin: 32px 0 16px; font-size: 18px; line-height: 26px; font-weight: 700; }
+.md h4 { margin: 16px 0; font-size: 16px; line-height: 24px; font-weight: 600; }
+.md > :first-child { margin-top: 0; }
+.md > :last-child { margin-bottom: 0; }
+.md strong { font-weight: 600; }
+.md ul, .md ol { margin: 16px 0; padding-left: 18px; }
+.md li + li { margin-top: 6px; }
+.md li::marker { color: var(--dsw-alias-label-secondary); line-height: 24px; }
+.md blockquote {
+  margin: 16px 0 0; padding-left: 14px;
+  border-left: 2px solid var(--dsw-alias-label-caption);
+  color: var(--dsw-alias-label-secondary);
+}
+.md code {
+  padding: 0 5px;
+  border: 0.5px solid var(--dsw-alias-border-l1);
+  border-radius: var(--dsw-radius-sm);
+  background: var(--dsw-alias-markdown-inline-code);
+  font-family: var(--font-mono);
+  font-size: .875em;
+}
+.md a { font-weight: 500; text-decoration: none; }
+.md a:hover, .md a:focus-visible { text-decoration: underline dotted; text-underline-offset: 3px; }
+.md .codeblock {
+  max-width: 100%;
+  border: 0.5px solid var(--dsw-alias-border-l1);
+  border-radius: var(--dsw-radius-lg);
+  background: var(--dsw-alias-markdown-code-block);
+  overflow: hidden;
+}
+.md .codeblock-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 9px 14px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+  background: var(--dsw-alias-markdown-code-block-banner);
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px; line-height: 18px;
+}
+.md pre {
+  margin: 0; padding: 16px;
+  overflow-x: auto; overflow-y: hidden;
+  color: var(--dsw-alias-label-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px; line-height: 19px;
+  white-space: pre;
+}
+
+.new .user-row { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; margin-top: 12px; }
+.new .bubble {
+  max-width: min(82%, 100%);
+  padding: 10px 16px;
+  border-radius: var(--dsw-radius-xl);
+  background: var(--dsw-specific-bubble);
+  color: var(--dsw-alias-label-primary);
+  font-size: 14px; line-height: 22px;
+  white-space: pre-wrap; word-break: break-word;
+}
+.new .user-time { font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary); }
+
+.tool-row {
+  width: 100%; min-height: 24px;
+  display: flex; align-items: center; gap: 6px;
+  padding: 0; margin-top: 6px;
+  border: 0; background: transparent;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 13px; line-height: 24px; text-align: left;
+}
+.tool-icon { width: 16px; height: 16px; flex: none; display: inline-flex; align-items: center; justify-content: center; }
+.tool-icon svg { width: 14px; height: 14px; }
+.tool-title { flex: none; }
+.tool-summary { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.turn-done {
+  width: 100%; min-height: 33px;
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 0 8px; margin-top: 12px;
+  border: 0; border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+  background: transparent;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 14px; line-height: 24px; text-align: left;
+}
+.turn-done .duration { font-variant-numeric: tabular-nums; }
+.turn-done .chev { margin-left: auto; }
+
+.sys { display: flex; flex-direction: column; align-items: center; }
+.sys-row {
+  max-width: 100%; display: inline-flex; align-items: center; gap: 6px;
+  padding: 2px 0; border: 0; background: transparent;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px; line-height: 18px;
+}
+.sys-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.streaming-text { font-size: 14px; line-height: 24px; color: var(--dsw-alias-label-primary); }
+.typing { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary); }
+.typing .dots { display: inline-flex; gap: 2px; }
+.typing .dots i { width: 3px; height: 3px; border-radius: 50%; background: currentColor; animation: blink 1.2s infinite ease-in-out; }
+.typing .dots i:nth-child(2) { animation-delay: .15s; }
+.typing .dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes blink { 0%, 60%, 100% { opacity: .2; } 30% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .typing .dots i { animation: none; opacity: .8; } }
+
+/* ------------------------------ 标注 ------------------------------ */
+.anno {
+  display: flex; align-items: flex-start; gap: 6px;
+  margin: 8px 0 16px;
+  padding: 6px 8px;
+  border: 0.5px dashed var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-sm);
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px; line-height: 18px;
+  overflow-wrap: anywhere;
+}
+.anno .num {
+  flex: none;
+  width: 16px; height: 16px; margin-top: 1px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  border: 0.5px solid var(--dsw-alias-border-l3);
+  color: var(--dsw-alias-label-secondary);
+  font-size: 10px; line-height: 1; font-weight: 700;
+}
+.anno b { color: var(--dsw-alias-label-secondary); font-weight: 600; }
+.anno code {
+  padding: 0 3px;
+  border-radius: var(--dsw-radius-xs);
+  background: var(--dsw-alias-markdown-inline-code);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.anno.issue { border-color: color-mix(in srgb, var(--dsw-alias-state-warn-primary) 34%, transparent); }
+.anno.issue .num { color: var(--dsw-alias-state-warn-primary); border-color: color-mix(in srgb, var(--dsw-alias-state-warn-primary) 40%, transparent); }
+
+/* “只看视觉”模式：隐藏标注 */
+body[data-anno="off"] .anno { display: none; }
+body[data-anno="off"] .anno-note { display: none; }
+
+/* ------------------------------ 规格区 ------------------------------ */
+.section { max-width: 1280px; margin: 0 auto; padding: 32px 24px 8px; }
+.section h2 { margin: 0 0 8px; font-size: 18px; line-height: 28px; font-weight: 700; }
+.section h3 { margin: 24px 0 8px; font-size: 14px; line-height: 24px; font-weight: 700; }
+.section > p { margin: 0 0 14px; max-width: 900px; font-size: 13px; line-height: 22px; color: var(--dsw-alias-label-secondary); }
+.table-scroll { width: 100%; overflow-x: auto; }
+.spec-table { width: 100%; border-collapse: collapse; font-size: 12px; line-height: 20px; }
+@media (max-width: 640px) {
+  .spec-table, .spec-table thead, .spec-table tbody, .spec-table tr, .spec-table th, .spec-table td { display: block; width: 100%; }
+  .spec-table thead { display: none; }
+  .spec-table tr { padding: 10px 0; border-bottom: 0.5px solid var(--dsw-alias-border-l2); }
+  .spec-table tr:last-child { border-bottom: 0; }
+  .spec-table td { display: flex; gap: 10px; padding: 2px 0; border: 0; overflow-wrap: anywhere; }
+  .spec-table td::before {
+    content: attr(data-label);
+    flex: 0 0 64px;
+    color: var(--dsw-alias-label-tertiary);
+    font-size: 11px; line-height: 20px;
+  }
+  .spec-table td[data-label=""]::before { display: none; }
+}
+.spec-table th, .spec-table td { padding: 8px 10px; border-bottom: 0.5px solid var(--dsw-alias-border-l1); text-align: left; vertical-align: top; }
+.spec-table th { color: var(--dsw-alias-label-secondary); font-weight: 500; border-bottom-color: var(--dsw-alias-border-l2); white-space: nowrap; }
+.spec-table td { color: var(--dsw-alias-label-secondary); }
+.spec-table td b { color: var(--dsw-alias-label-primary); font-weight: 600; }
+.spec-table code {
+  font-family: var(--font-mono); font-size: 10.5px;
+  padding: 0 4px; border-radius: var(--dsw-radius-xs);
+  background: var(--dsw-alias-markdown-inline-code);
+  overflow-wrap: anywhere;
+}
+.sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 4px; border: 0.5px solid var(--dsw-alias-border-l2); }
+.snippet {
+  max-width: 100%;
+  border: 0.5px solid var(--dsw-alias-border-l1);
+  border-radius: var(--dsw-radius-lg);
+  background: var(--dsw-alias-markdown-code-block);
+  overflow: hidden;
+}
+.snippet-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 9px 14px; border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+  background: var(--dsw-alias-markdown-code-block-banner);
+  color: var(--dsw-alias-label-tertiary); font-size: 11px; line-height: 18px;
+}
+.snippet pre { margin: 0; padding: 16px; overflow-x: auto; color: var(--dsw-alias-label-secondary); font-family: var(--font-mono); font-size: 11px; line-height: 19px; white-space: pre; }
+.diff-list { margin: 8px 0 0; padding-left: 20px; font-size: 13px; line-height: 24px; color: var(--dsw-alias-label-secondary); }
+.diff-list b { color: var(--dsw-alias-label-primary); }
+.diff-list code { font-family: var(--font-mono); font-size: 11px; padding: 0 4px; border-radius: var(--dsw-radius-xs); background: var(--dsw-alias-markdown-inline-code); }
+.note-list { margin: 8px 0 0; padding-left: 20px; font-size: 13px; line-height: 24px; color: var(--dsw-alias-label-secondary); }
+.foot { max-width: 1280px; margin: 0 auto; padding: 24px 24px 48px; font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary); }
+
+@media (max-width: 999px) {
+  .compare { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 479px) {
+  .doc-head, .legend, .compare, .section, .foot { padding-left: 14px; padding-right: 14px; }
+  .pane-body { padding: 12px; }
+  .device { padding: 12px; }
+  .doc-title { font-size: 21px; line-height: 30px; }
+}
+</style>
+</head>
+<body>
+
+<header class="doc-head">
+  <div class="doc-kicker">
+    <span>DevBot v0.5</span><span class="dotsep">/</span>
+    <span>阶段 3 · 前端设计</span><span class="dotsep">/</span>
+    <span>design/conversation-style.html</span>
+  </div>
+  <h1 class="doc-title">会话历史样式对照 <span>· v0.4 → DSH 主会话同族</span></h1>
+  <p class="doc-sub">左：当前 v0.4「头像 + 气泡」；右：v0.5 新版「assistant/Member 正文无气泡直排 + markdown、用户右侧胶囊、成员小头像 + 名字 + 时间 + 连续合并、系统/派单紧凑行、日分隔、流式」。颜色/圆角只用 DSH token，深/浅色只换 token。</p>
+  <div class="doc-actions">
+    <button class="btn" type="button" id="themeBtn" aria-pressed="false">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="3.2"/><path d="M8 1.2v1.6M8 13.2v1.6M1.2 8h1.6M13.2 8h1.6M3.2 3.2l1.1 1.1M11.7 11.7l1.1 1.1M12.8 3.2l-1.1 1.1M4.3 11.7l-1.1 1.1"/></svg>
+      <span id="themeLabel">切到浅色</span>
+    </button>
+    <button class="btn" type="button" id="annoBtn" aria-pressed="false">隐藏标注（只看视觉）</button>
+  </div>
+</header>
+
+<div class="legend" aria-label="对照说明">
+  <span><b>判定基线</b>：docs/dsh-ui-style-spec.md</span>
+  <span><b>范围</b>：DevBot 群聊时间线；不改 controller / 不加依赖</span>
+  <span><b>允许差异</b>：成员身份头、系统/派单/流式行、日分隔</span>
+</div>
+
+<main>
+  <div class="compare">
+    <!-- ============================= 旧 ============================= -->
+    <section class="pane old" aria-labelledby="old-title">
+      <header class="pane-head">
+        <span class="badge">v0.4 现状</span>
+        <h2 id="old-title">头像 + 气泡体系</h2>
+        <p>每条消息都有 26px 头像、11px 名字与带边框气泡；assistant 与成员视觉同权，markdown 原样显示。</p>
+      </header>
+      <div class="pane-body">
+        <div class="device">
+          <div class="device-label"><b>v0.4 · 390px 会话列</b><span>截图基线</span></div>
+
+          <div class="day">今天</div>
+
+          <div class="old-msg">
+            <span class="old-avatar role-lead" aria-hidden="true">L</span>
+            <div class="old-main">
+              <div class="old-head"><span class="old-name">Lead</span><span>09:41</span></div>
+              <div class="old-bubble raw-md">## 合并结果
+- 390 宽时间线被压到 0
+- 底部状态条逐字竖排</div>
+            </div>
+          </div>
+          <div class="anno issue"><span class="num">1</span><span><b>assistant 也是气泡</b>：border + bg-overlay + 圆角 10，正文 <code>13/21</code>。</span></div>
+
+          <div class="old-msg reverse">
+            <span class="old-avatar role-system" aria-hidden="true">你</span>
+            <div class="old-main">
+              <div class="old-head"><span class="old-name">你</span><span>09:43</span></div>
+              <div class="old-bubble human">手机端三栏挤坏了，历史也不像 DSH 主会话。</div>
+            </div>
+          </div>
+          <div class="anno issue"><span class="num">2</span><span><b>用户气泡偏蓝</b>：旧实现用 <code>rgba(31,111,235,.14)</code>，不是 <code>--dsw-specific-bubble</code>。</span></div>
+
+          <div class="old-msg">
+            <span class="old-avatar role-pm" aria-hidden="true">P</span>
+            <div class="old-main">
+              <div class="old-head"><span class="old-name">pm</span><span>09:45</span></div>
+              <div class="old-bubble">我出一版 v0.5 PRD：三断点 + 时间线视觉统一。</div>
+            </div>
+          </div>
+          <div class="anno issue"><span class="num">3</span><span><b>每条重复头像 + 名字</b>：长会话里身份噪音大，正文与元信息同权。</span></div>
+
+          <div class="old-msg">
+            <span class="old-avatar role-system" aria-hidden="true">📋</span>
+            <div class="old-main">
+              <div class="old-head"><span class="old-name">📋 派单 · 派单</span><span>09:46</span></div>
+              <div class="old-bubble task">派单 · PM → designer · 移动端工作台 + 会话历史高保真</div>
+            </div>
+          </div>
+          <div class="anno issue"><span class="num">4</span><span><b>派单也是气泡</b>：虚线气泡 12px，与正文抢层级；markdown 未渲染（<code>##</code>/<code>-</code> 原样）。</span></div>
+
+          <div class="old-msg">
+            <span class="old-avatar role-fullstack" aria-hidden="true">F</span>
+            <div class="old-main">
+              <div class="old-head"><span class="old-name">fullstack</span><span>09:48</span></div>
+              <div class="old-bubble">收到，实现时保留 stick / loadOlder 语义。</div>
+            </div>
+          </div>
+          <div class="anno issue"><span class="num">5</span><span><b>无日分隔 / 无合并规则</b>：跨天、连续发送都无法从行数据判断，只能靠人工阅读。</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= 新 ============================= -->
+    <section class="pane new" aria-labelledby="new-title">
+      <header class="pane-head">
+        <span class="badge new">v0.5 新版</span>
+        <h2 id="new-title">DSH 主会话同族 + 群聊身份</h2>
+        <p>成员正文与 DSH assistant 同排版：无气泡、无边框、14/24、markdown 直排；身份头是唯一有意扩展。</p>
+      </header>
+      <div class="pane-body">
+        <div class="device">
+          <div class="device-label"><b>v0.5 · 390px 会话列</b><span>32px side padding</span></div>
+
+          <div class="day">今天</div>
+
+          <article class="msg member">
+            <header class="member-head">
+              <span class="avatar role-designer" aria-hidden="true">D</span>
+              <span class="member-name">designer</span>
+              <time class="member-time">09:32</time>
+            </header>
+            <div class="md member-body">
+              <h2>会话历史对齐 DSH</h2>
+              <ul>
+                <li>assistant 无气泡、无头像，正文 <code>14/24</code></li>
+                <li>用户消息右侧胶囊，不显示头像/名字</li>
+                <li>成员身份只在发送者变化时出现一次</li>
+              </ul>
+              <p>数值基线见 <a href="#spec-title">样式规范</a>，不改 controller 语义。</p>
+            </div>
+          </article>
+          <div class="anno"><span class="num">1</span><span><b>成员头</b>：头像 <code>20px</code> · 名字 <code>12/18 w600</code> label-secondary · 时间 <code>11/18</code> label-tertiary · 距正文 <code>2px</code>；正文 <code>14/24</code> label-primary，无气泡。</span></div>
+
+          <article class="msg member cont">
+            <div class="md member-body">
+              <p>连续发送者合并：同 <code>senderId</code> 且间隔 <code>≤5min</code> 不重复头，组内 <code>6px</code>；跨日/超时强制显示。</p>
+              <blockquote>合并只依赖行数据（senderId / time / 跨日），不读 DOM 几何，纯 JS 可单测。</blockquote>
+              <div class="codeblock">
+                <div class="codeblock-head"><span>css</span><span>conversation.css</span></div>
+                <pre>.member-body { font-size: 14px; line-height: 24px; }
+.member-head { display: flex; gap: 6px; }
+.bubble { background: var(--dsw-specific-bubble);
+  border-radius: var(--dsw-radius-xl); }</pre>
+              </div>
+            </div>
+          </article>
+          <div class="anno"><span class="num">2</span><span><b>连续合并</b>：同发送者第二条不显示头像/名字，正文对齐同一 x；组内 <code>6px</code>，组间 <code>12px</code>。</span></div>
+
+          <button class="tool-row" type="button">
+            <span class="tool-icon" aria-hidden="true">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5h11M2.5 8h7M2.5 11.5h5"/><path d="m11.5 10.5 2 2 2-2" transform="translate(-1.5 -1)"/></svg>
+            </span>
+            <span class="tool-title">派单 · PM</span>
+            <span class="tool-summary">→ designer · 移动端工作台 + 会话历史高保真</span>
+          </button>
+          <div class="anno"><span class="num">3</span><span><b>工具 / 派单行</b>：高 <code>24px</code> · 标题 <code>13/24</code> · 图标盒 <code>16</code>（字形 14）· 前景 label-tertiary，hover label-secondary · 摘要 ellipsis；展开卡 <code>markdown-code-block</code> + <code>radius-lg</code>。</span></div>
+
+          <button class="turn-done" type="button">
+            <svg class="chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg>
+            <span>已完成，用时 <span class="duration">2 分 08 秒</span></span>
+          </button>
+          <div class="anno"><span class="num">4</span><span><b>“已完成，用时”</b>：高 <code>33px</code> · 14/24 label-tertiary · 下边框 <code>0.5px border-l2</code> · 时长 tabular-nums · 展开内容距页眉 16px。</span></div>
+
+          <div class="sys">
+            <button class="sys-row" type="button">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M2.5 13V3M2.5 3h9l-1.6 2.6L11.5 8h-9"/></svg>
+              <span class="sys-text">门禁 · 阶段 3/5 前端设计 · 1 个任务被阻塞</span>
+            </button>
+          </div>
+          <div class="anno"><span class="num">5</span><span><b>系统 / 门禁行</b>：居中 <code>11–12/18</code> label-tertiary · 无边框气泡 · 单行省略，点击展开详情。</span></div>
+
+          <div class="user-row">
+            <div class="bubble">用户消息右侧胶囊，不要头像和名字。</div>
+            <time class="user-time">10:02</time>
+          </div>
+          <div class="anno"><span class="num">6</span><span><b>用户胶囊</b>：<code>--dsw-specific-bubble</code> · <code>radius-xl 20</code> · padding <code>10×16</code> · 正文 <code>14/22</code> · 上限 <code>min(列宽×.702, 82%)</code> · 无头像；时间 <code>11/18</code> 右对齐。</span></div>
+
+          <article class="msg member">
+            <header class="member-head">
+              <span class="avatar role-fullstack" aria-hidden="true">F</span>
+              <span class="member-name">fullstack</span>
+              <time class="member-time">10:05</time>
+            </header>
+            <div class="member-body">
+              <div class="streaming-text">正在核对底部状态条的 <code class="md-code">white-space</code> 与 safe-area 叠加，顺便跑 390/375/430 三档截图…</div>
+              <div class="typing" aria-label="对方正在输入"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>输入中</span></div>
+            </div>
+          </article>
+          <div class="anno"><span class="num">7</span><span><b>流式</b>：正文同 assistant <code>14/24</code> + “输入中” <code>11/18</code> label-tertiary；<code>prefers-reduced-motion</code> 用静态三点；settle 后替换不叠字。</span></div>
+
+          <div class="anno"><span class="num">8</span><span><b>日分隔</b>：居中 <code>11/18</code> label-tertiary，上下 <code>10–12px</code>；跨日显示“M月D日”，当日不显示。代码块 <code>11/19</code> mono、<code>radius-lg</code>、消息内横滚。</span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================= 规格 ============================= -->
+  <section class="section" id="spec-title" aria-labelledby="type-title">
+    <h2 id="type-title">字号 / 行高 / 间距基线</h2>
+    <p>与 DSH 主会话实测值一致；移动端正文 14/24，元信息 11–12/18。纵向节奏：普通流节点 <b>6px</b>；assistant 与相邻过程行 <b>12px</b>；markdown 块间 <b>16px</b>；日分隔上下 <b>10–12px</b>；轮次尾 <b>16px</b>。</p>
+    <p>成员头合并：发送者变化、同一发送者间隔 <b>&gt;5 分钟</b>、或跨日（日分隔处强制显示）时显示头；连续同一发送者不重复头像/名字，正文对齐同一 x。</p>
+    <div class="table-scroll">
+      <table class="spec-table">
+        <thead><tr><th>元素</th><th>字号 / 行高</th><th>间距</th><th>颜色 / token</th></tr></thead>
+        <tbody>
+          <tr><td><b>assistant / 成员正文</b></td><td>14 / 24，strong 600</td><td>普通流节点 6；与过程行 12；markdown 块间 16</td><td><code>--dsw-alias-label-primary</code></td></tr>
+          <tr><td><b>用户胶囊</b></td><td>14 / 22</td><td>padding 10×16；上下消息 6–12</td><td><code>--dsw-specific-bubble</code> + <code>--dsw-radius-xl</code></td></tr>
+          <tr><td><b>成员头</b></td><td>名字 12/18 w600；时间 11/18</td><td>头像 20；头像与名字 6；距正文 2</td><td>名字 label-secondary；时间 label-tertiary</td></tr>
+          <tr><td><b>系统行 / 日分隔</b></td><td>11–12 / 18；日分隔 11/18</td><td>日分隔上下 10–12；系统行 8</td><td><code>--dsw-alias-label-tertiary</code></td></tr>
+          <tr><td><b>工具 / 派单行</b></td><td>13 / 24</td><td>行高 24；行间 6；展开卡 8</td><td>label-tertiary（hover secondary）</td></tr>
+          <tr><td><b>“已完成，用时”</b></td><td>14 / 24；时长 tabular-nums</td><td>高 33；padding-bottom 8；展开 16</td><td>label-tertiary；<code>border-l2</code></td></tr>
+          <tr><td><b>markdown 标题</b></td><td>h1 21/30 · h2 19/28 · h3 18/26 · h4 16/24</td><td>margin 32 0 16；首标题 0</td><td>label-primary，w700 / h4 w600</td></tr>
+          <tr><td><b>行内 code / 代码块</b></td><td>行内 .875em；代码块 11/19 mono</td><td>行内 padding 0 5；pre padding 16</td><td><code>markdown-inline-code</code> / <code>markdown-code-block</code>；<code>radius-sm</code> / <code>radius-lg</code></td></tr>
+          <tr><td><b>流式“输入中”</b></td><td>11 / 18</td><td>正文下 4</td><td><code>--dsw-alias-label-tertiary</code></td></tr>
+          <tr><td><b>表格</b></td><td>13 / 22；表头 w500</td><td>th/td padding 10×16；首列/末列 0</td><td>边框 <code>border-l3</code> / <code>border-l2</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="token-title" style="margin-top:32px">Token 对照（深 / 浅）</h2>
+    <p>组件只引用变量；角色色由 alias token 用 <code class="code-inline">color-mix</code> 派生，只出现在头像底/字母。</p>
+    <div class="table-scroll">
+      <table class="spec-table">
+        <thead><tr><th>Token</th><th>深色</th><th>浅色</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td><code>--dsw-alias-label-primary</code></td><td><span class="sw" style="background:var(--dsw-alias-label-primary)"></span>#F9FAFB</td><td><span class="sw" style="background:var(--dsw-alias-label-primary)"></span>#0F1115</td><td>正文 / 标题</td></tr>
+          <tr><td><code>--dsw-alias-label-secondary</code></td><td><span class="sw" style="background:var(--dsw-alias-label-secondary)"></span>#CFD3D6</td><td><span class="sw" style="background:var(--dsw-alias-label-secondary)"></span>#61666B</td><td>成员名 / 次级文字</td></tr>
+          <tr><td><code>--dsw-alias-label-tertiary</code></td><td><span class="sw" style="background:var(--dsw-alias-label-tertiary)"></span>#ADB2B8</td><td><span class="sw" style="background:var(--dsw-alias-label-tertiary)"></span>#81858C</td><td>时间 / 系统行 / 工具行</td></tr>
+          <tr><td><code>--dsw-alias-label-caption</code></td><td><span class="sw" style="background:var(--dsw-alias-label-caption)"></span>#81858C</td><td><span class="sw" style="background:var(--dsw-alias-label-caption)"></span>#ADB2B8</td><td>引用左边框 / 弱提示</td></tr>
+          <tr><td><code>--dsw-alias-bg-base</code></td><td><span class="sw" style="background:var(--dsw-alias-bg-base)"></span>#151517</td><td><span class="sw" style="background:var(--dsw-alias-bg-base)"></span>#FFFFFF</td><td>时间线底色</td></tr>
+          <tr><td><code>--dsw-alias-bg-overlay</code></td><td><span class="sw" style="background:var(--dsw-alias-bg-overlay)"></span>#61666B</td><td><span class="sw" style="background:var(--dsw-alias-bg-overlay)"></span>#E9ECF2</td><td>旧气泡 / hover 底（v0.5 不用于正文）</td></tr>
+          <tr><td><code>--dsw-specific-bubble</code></td><td><span class="sw" style="background:var(--dsw-specific-bubble)"></span>#2C2C2E</td><td><span class="sw" style="background:var(--dsw-specific-bubble)"></span>#EDF3FE</td><td>用户胶囊</td></tr>
+          <tr><td><code>--dsw-alias-border-l1 / l2 / l3</code></td><td><span class="sw" style="background:var(--dsw-alias-border-l2)"></span>6% / 12% / 16%</td><td><span class="sw" style="background:var(--dsw-alias-border-l2)"></span>4% / 10% / 12%</td><td>分隔线 / 展开卡边框</td></tr>
+          <tr><td><code>--dsw-alias-link</code></td><td><span class="sw" style="background:var(--dsw-alias-link)"></span>#7AAAFF</td><td><span class="sw" style="background:var(--dsw-alias-link)"></span>#4176E6</td><td>链接 / 进行中状态点</td></tr>
+          <tr><td><code>markdown-code-block</code></td><td><span class="sw" style="background:var(--dsw-alias-markdown-code-block)"></span>#1B1B1C</td><td><span class="sw" style="background:var(--dsw-alias-markdown-code-block)"></span>#F9FAFB</td><td>代码块 / 展开卡</td></tr>
+          <tr><td><code>markdown-inline-code</code></td><td><span class="sw" style="background:var(--dsw-alias-markdown-inline-code)"></span>#292929</td><td><span class="sw" style="background:var(--dsw-alias-markdown-inline-code)"></span>#FAFAFA</td><td>行内 code</td></tr>
+          <tr><td>圆角 <code>--dsw-radius-*</code></td><td>xs 4 · sm 8 · md 12 · lg 16 · xl 20 · panel 28</td><td>xs 4 · sm 8 · md 12 · lg 16 · xl 20 · panel 28</td><td>胶囊 xl；代码块/卡片 lg；行内 code sm</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="css-title">
+    <h2 id="css-title">可直接复用的 CSS 片段（供 task-4）</h2>
+    <p>纯 CSS 变量，无构建、无依赖；markdown 由 client.js 内置子集渲染器输出同名 class。</p>
+    <div class="snippet">
+      <div class="snippet-head"><span>css</span><span>conversation.css · assistant / user / member</span></div>
+      <pre>.assistant, .member-body {
+  min-width: 0;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--dsw-alias-label-primary);
+}
+.assistant > * + * {
+  margin-top: 16px;              /* markdown 块间 */
+}
+.userRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.userStack {
+  min-width: 0;
+  max-width: min(calc(100% * .82), 100%);
+}
+.bubble {
+  max-width: 100%;
+  padding: 10px 16px;
+  border-radius: var(--dsw-radius-xl);
+  background: var(--dsw-specific-bubble);
+  font-size: 14px;
+  line-height: 22px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}</pre>
+    </div>
+    <div class="snippet" style="margin-top:12px">
+      <div class="snippet-head"><span>css</span><span>conversation.css · rows</span></div>
+      <pre>.toolRow {
+  display: flex; align-items: center;
+  gap: 6px; height: 24px;
+  font-size: 13px; line-height: 24px;
+  color: var(--dsw-alias-label-tertiary);
+}
+.toolRow .summary {
+  min-width: 0; overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sysRow {
+  display: flex; justify-content: center;
+  font-size: 12px; line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+}
+.dayDivider {
+  text-align: center;
+  font-size: 11px; line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+  margin: 10px 0 12px;
+}
+.turnDone {
+  display: flex; align-items: center;
+  gap: 6px; min-height: 33px;
+  padding: 0 0 8px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+  font-size: 14px; line-height: 24px;
+  color: var(--dsw-alias-label-tertiary);
+}</pre>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="diff-title">
+    <h2 id="diff-title">与 DSH 主会话的差异（5 条，均为 DevBot 特有）</h2>
+    <p>AC-22 要求差异 ≤5 条且都能解释；除下列 5 条，正文排版、用户胶囊、间距节奏、token 与 DSH 主会话一致。</p>
+    <ol class="diff-list">
+      <li><b>成员身份头</b>：DSH assistant 不显示名字/头像；DevBot 群聊必须能区分成员 → 20px 头像 + 12/18 名字 + 11/18 时间，连续合并。</li>
+      <li><b>系统 / 门禁 / 任务事件行</b>：DSH 无群事件条 → 居中 11–12/18 label-tertiary 单行，点击展开详情，不引入彩色气泡。</li>
+      <li><b>派单行</b>：DSH 无派单概念 → 复用工具行 24px 紧凑样式，正文只在目标会话投递副本出现一次。</li>
+      <li><b>流式“输入中”指示</b>：DSH 使用运行状态组件 → DevBot 用正文直排 + 11/18 文本指示，减少动态效果时静态三点。</li>
+      <li><b>日分隔</b>：DSH 主会话无跨成员合并的日分隔先例 → 11/18 居中弱化，跨日必显示，当日不显示。</li>
+    </ol>
+  </section>
+
+  <section class="section" aria-labelledby="impl-title">
+    <h2 id="impl-title">实现底线（task-4 自检）</h2>
+    <ul class="note-list">
+      <li>markdown 先转义 HTML 再渲染；链接白名单 <code class="code-inline">http(s) / mailto / #</code>；不执行内联 HTML。</li>
+      <li>连续发送者合并只读行数据：<code class="code-inline">senderId</code> + <code class="code-inline">time</code> + 跨日；不读 DOM 几何。</li>
+      <li>正文/背景/边框/圆角全部走 token；角色色只用于头像底或 4–6px 圆点，浅色下加边框或降饱和。</li>
+      <li>代码块 / 表格在消息内 <code class="code-inline">overflow-x:auto</code>；页面 <code class="code-inline">scrollWidth</code> 不得超。</li>
+      <li>保留 retain/release/attach、loadOlder、nextStick/shouldFollowBottom、settle 去重语义；样式层不回写数据层。</li>
+    </ul>
+  </section>
+
+  <footer class="foot">
+    DevBot v0.5 · 前端设计阶段 · 本文件为静态高保真（无外部 CDN / 无依赖）；数值基线 docs/dsh-ui-style-spec.md。
+  </footer>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var themeBtn = document.getElementById('themeBtn');
+  var themeLabel = document.getElementById('themeLabel');
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    var dark = theme === 'dark';
+    themeBtn.setAttribute('aria-pressed', dark ? 'false' : 'true');
+    themeLabel.textContent = dark ? '切到浅色' : '切到深色';
+  }
+  themeBtn.addEventListener('click', function () {
+    applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+
+  var annoBtn = document.getElementById('annoBtn');
+  annoBtn.addEventListener('click', function () {
+    var off = document.body.getAttribute('data-anno') === 'off';
+    document.body.setAttribute('data-anno', off ? 'on' : 'off');
+    annoBtn.setAttribute('aria-pressed', off ? 'false' : 'true');
+    annoBtn.textContent = off ? '隐藏标注（只看视觉）' : '显示标注';
+  });
+
+  /* 规格表：窄屏卡片式标签 */
+  Array.prototype.forEach.call(document.querySelectorAll('.spec-table'), function (table) {
+    var labels = Array.prototype.map.call(table.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+    Array.prototype.forEach.call(table.querySelectorAll('tbody tr'), function (tr) {
+      Array.prototype.forEach.call(tr.querySelectorAll('td'), function (td, i) {
+        td.setAttribute('data-label', labels[i] || '');
+      });
+    });
+  });
+
+  applyTheme('dark');
+})();
+</script>
+</body>
+</html>

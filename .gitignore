@@ -1,0 +1,11 @@
+node_modules/
+.DS_Store
+*.log
+
+# 测试/设计验证产物（本地生成，不入库）
+test/browser/out/
+design/verify/
+
+# 内部工作文档（本地保留，不公开）
+docs/handover.md
+docs/plan-entry-and-group-chat.md

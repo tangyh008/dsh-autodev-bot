@@ -1,0 +1,55 @@
+{
+  "name": "@local/dsh-autodev-bot",
+  "version": "0.5.5",
+  "private": true,
+  "description": "全自动化软件开发 Bot：5 角色 preset + 严格阶段门 + 独立工作台（群聊时间线）+ 队友角色 preset 桥，loop-agent 执行后端",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tangyh008/dsh-autodev-bot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tangyh008/dsh-autodev-bot/issues"
+  },
+  "homepage": "https://github.com/tangyh008/dsh-autodev-bot#readme",
+  "type": "module",
+  "bin": {
+    "devbot": "./bin/devbot.mjs"
+  },
+  "scripts": {
+    "test": "node --test 'test/*.test.mjs'"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "presets/*.md",
+    "skills/*.md",
+    "bin/devbot.mjs",
+    "bin/loop-mcp-call.mjs",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  }
+}

@@ -1,0 +1,1704 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DevBot v0.5 · 移动端工作台高保真</title>
+<style>
+/* ==========================================================================
+   DevBot v0.5 设计稿 · 移动端工作台
+   颜色/圆角只使用 DSH token：--dsw-alias-* / --dsw-specific-bubble / --dsw-radius-*
+   token 原始值只在 :root / [data-theme] 声明一次；组件规则只引用变量。
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+  --dsw-alias-label-primary: #F9FAFB;
+  --dsw-alias-label-secondary: #CFD3D6;
+  --dsw-alias-label-tertiary: #ADB2B8;
+  --dsw-alias-label-caption: #81858C;
+  --dsw-alias-bg-base: #151517;
+  --dsw-alias-bg-layer-1: #232324;
+  --dsw-alias-bg-layer-2: #2C2C2E;
+  --dsw-alias-bg-overlay: #61666B;
+  --dsw-alias-border-l1: rgba(255, 255, 255, .06);
+  --dsw-alias-border-l2: rgba(255, 255, 255, .12);
+  --dsw-alias-border-l3: rgba(255, 255, 255, .16);
+  --dsw-alias-border-l4: rgba(255, 255, 255, .20);
+  --dsw-alias-link: #7AAAFF;
+  --dsw-alias-state-success-primary: #22C55E;
+  --dsw-alias-state-warn-primary: #F59E0B;
+  --dsw-alias-state-error-primary: #F25A5A;
+  --dsw-alias-markdown-code-block: #1B1B1C;
+  --dsw-alias-markdown-code-block-banner: #2C2C2E;
+  --dsw-alias-markdown-inline-code: #292929;
+  --dsw-alias-interactive-bg-hover: rgba(255, 255, 255, .08);
+  --dsw-specific-bubble: #2C2C2E;
+
+  --dsw-radius-xs: 4px;
+  --dsw-radius-sm: 8px;
+  --dsw-radius-md: 12px;
+  --dsw-radius-lg: 16px;
+  --dsw-radius-xl: 20px;
+  --dsw-radius-panel: 28px;
+
+  /* 角色色：只由 alias token 派生，只用于头像底/圆点（PRD §11.2） */
+  --role-lead: var(--dsw-alias-link);
+  --role-pm: var(--dsw-alias-state-warn-primary);
+  --role-designer: color-mix(in srgb, var(--dsw-alias-link) 55%, var(--dsw-alias-state-error-primary));
+  --role-fullstack: var(--dsw-alias-state-success-primary);
+  --role-tester: var(--dsw-alias-state-error-primary);
+  --role-system: var(--dsw-alias-label-caption);
+
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", "Fira Code", Consolas, "Liberation Mono", Menlo, Courier, "PingFang SC", "Microsoft YaHei";
+
+  --phone-w: 390px;
+  --dsh-frame-top-clearance: 0px;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --dsw-alias-label-primary: #0F1115;
+  --dsw-alias-label-secondary: #61666B;
+  --dsw-alias-label-tertiary: #81858C;
+  --dsw-alias-label-caption: #ADB2B8;
+  --dsw-alias-bg-base: #FFFFFF;
+  --dsw-alias-bg-layer-1: #FFFFFF;
+  --dsw-alias-bg-layer-2: #FFFFFF;
+  --dsw-alias-bg-overlay: #E9ECF2;
+  --dsw-alias-border-l1: rgba(0, 0, 0, .04);
+  --dsw-alias-border-l2: rgba(0, 0, 0, .10);
+  --dsw-alias-border-l3: rgba(0, 0, 0, .12);
+  --dsw-alias-border-l4: rgba(0, 0, 0, .16);
+  --dsw-alias-link: #4176E6;
+  --dsw-alias-state-success-primary: #22C55E;
+  --dsw-alias-state-warn-primary: #F59E0B;
+  --dsw-alias-state-error-primary: #EC1313;
+  --dsw-alias-markdown-code-block: #F9FAFB;
+  --dsw-alias-markdown-code-block-banner: #F9FAFB;
+  --dsw-alias-markdown-inline-code: #FAFAFA;
+  --dsw-alias-interactive-bg-hover: rgba(38, 49, 72, .06);
+  --dsw-specific-bubble: #EDF3FE;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--dsw-alias-bg-base);
+  color: var(--dsw-alias-label-primary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 24px;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; }
+a { color: var(--dsw-alias-link); }
+
+/* ------------------------------ 文档外壳 ------------------------------ */
+.doc-head {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.doc-kicker {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  font-size: 12px; line-height: 18px; color: var(--dsw-alias-label-tertiary);
+}
+.doc-kicker .dotsep { color: var(--dsw-alias-label-caption); }
+.doc-title {
+  margin: 0; font-size: 24px; line-height: 34px; font-weight: 700; letter-spacing: -.2px;
+}
+.doc-title span { color: var(--dsw-alias-label-tertiary); font-weight: 500; }
+.doc-sub { margin: 0; max-width: 760px; font-size: 14px; line-height: 24px; color: var(--dsw-alias-label-secondary); }
+.doc-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+
+.btn {
+  min-height: 36px; padding: 0 12px;
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-sm);
+  background: var(--dsw-alias-bg-layer-1);
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px; line-height: 18px;
+  cursor: pointer;
+}
+.btn:hover, .btn:focus-visible { color: var(--dsw-alias-label-primary); background: var(--dsw-alias-interactive-bg-hover); }
+.btn:focus-visible, .iconbtn:focus-visible, .tab:focus-visible, .project-item:focus-visible,
+.sys-row:focus-visible, .tool-row:focus-visible, .turn-done:focus-visible {
+  outline: 2px solid var(--dsw-alias-state-business-primary, var(--dsw-alias-link));
+  outline-offset: 2px;
+}
+.btn[aria-pressed="true"] {
+  color: var(--dsw-alias-label-primary);
+  border-color: var(--dsw-alias-border-l3);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.stage {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 24px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.stage-tools {
+  width: 100%;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+}
+.stage-tools .grow { flex: 1 1 auto; }
+.seg {
+  display: inline-flex; gap: 2px; padding: 2px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-sm);
+  background: var(--dsw-alias-bg-layer-1);
+}
+.seg .btn { border: 0; background: transparent; min-height: 30px; padding: 0 10px; border-radius: var(--dsw-radius-xs); }
+.seg .btn[aria-pressed="true"] {
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-primary);
+  font-weight: 600;
+}
+.hud {
+  flex: 1 1 260px;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 0.5px dashed var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-sm);
+  font-family: var(--font-mono);
+  font-size: 11px; line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+  overflow-wrap: anywhere;
+}
+.hud[data-pass="true"] { color: var(--dsw-alias-label-secondary); }
+.hud b { color: var(--dsw-alias-label-primary); font-weight: 600; }
+.hud .ok { color: var(--dsw-alias-state-success-primary); }
+.hud .bad { color: var(--dsw-alias-state-error-primary); }
+.stage-note { margin: 0; font-size: 12px; line-height: 18px; color: var(--dsw-alias-label-tertiary); }
+
+/* ------------------------------ 手机框 ------------------------------ */
+.phone-shell { display: flex; justify-content: center; width: 100%; }
+.phone {
+  position: relative;
+  width: var(--phone-w);
+  height: 844px;
+  border: 1px solid var(--dsw-alias-border-l3);
+  border-radius: 36px;
+  background: var(--dsw-alias-bg-base);
+  overflow: hidden;
+  flex: none;
+}
+
+/* ------------------------------ App 根 ------------------------------ */
+.devbot-root {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--dsw-alias-bg-base);
+  color: var(--dsw-alias-label-primary);
+  font-size: 14px;
+  line-height: 24px;
+  container-type: inline-size;
+  overflow: hidden;
+}
+
+/* 44–48px 顶栏：返回 / 项目▾ / 刷新，全热区 ≥40×40 */
+.appbar {
+  flex: none;
+  min-height: 48px;
+  padding: calc(var(--dsh-frame-top-clearance) + env(safe-area-inset-top)) 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+  background: var(--dsw-alias-bg-base);
+}
+.iconbtn {
+  width: 40px; height: 40px; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 0; border-radius: var(--dsw-radius-sm);
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+}
+.iconbtn:hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); }
+.iconbtn[data-busy="true"] svg { animation: spin 900ms linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .iconbtn[data-busy="true"] svg { animation: none; } }
+
+.project-btn {
+  flex: 1 1 auto;
+  min-width: 0; height: 40px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  border: 0; border-radius: var(--dsw-radius-sm);
+  background: transparent;
+  color: var(--dsw-alias-label-primary);
+  font-size: 15px; line-height: 20px; font-weight: 600;
+  cursor: pointer;
+}
+.project-btn:hover { background: var(--dsw-alias-interactive-bg-hover); }
+.project-btn .name {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.project-btn .caret { flex: none; color: var(--dsw-alias-label-tertiary); }
+
+/* 四等分分段 tab：高 44、选中 = 加粗 + 2px 底部指示条（不只靠颜色） */
+.tabs {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+}
+.tab {
+  position: relative;
+  min-width: 0; height: 44px;
+  padding: 0 2px;
+  border: 0; background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 13px; line-height: 18px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.tab[aria-selected="true"] {
+  color: var(--dsw-alias-label-primary);
+  font-weight: 700;
+}
+.tab[aria-selected="true"]::after {
+  content: "";
+  position: absolute; left: 14px; right: 14px; bottom: 0;
+  height: 2px; border-radius: 1px;
+  background: var(--dsw-alias-label-primary);
+}
+.tab:hover { color: var(--dsw-alias-label-primary); }
+
+.views { position: relative; flex: 1 1 auto; min-height: 0; display: flex; }
+.view { flex: 1 1 auto; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.view[hidden] { display: none; }
+.view-scroll {
+  flex: 1 1 auto; min-height: 0;
+  overflow-y: auto; overflow-x: hidden;
+  padding: 16px;
+}
+.view-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+  margin-bottom: 12px;
+}
+.view-head h2 { margin: 0; font-size: 16px; line-height: 24px; font-weight: 700; }
+.view-head .meta { font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary); white-space: nowrap; }
+
+/* ------------------------------ 群聊时间线 ------------------------------ */
+.stream {
+  flex: 1 1 auto; min-height: 0;
+  overflow-y: auto; overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding: 16px 16px 20px;
+  scrollbar-width: thin;
+}
+.stream::-webkit-scrollbar { width: 6px; }
+.stream::-webkit-scrollbar-thumb {
+  background: var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-xs);
+}
+
+.day {
+  text-align: center;
+  font-size: 11px; line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+  margin: 10px 0 12px;
+}
+
+.sys { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.sys-row {
+  max-width: 100%;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 2px 0;
+  border: 0; background: transparent;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px; line-height: 18px;
+  cursor: pointer;
+}
+.sys-row:hover { color: var(--dsw-alias-label-secondary); }
+.sys-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sys-detail {
+  max-width: 100%;
+  margin-top: 4px;
+  padding: 6px 10px;
+  border: 0.5px dashed var(--dsw-alias-border-l1);
+  border-radius: var(--dsw-radius-sm);
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px; line-height: 18px;
+  overflow-wrap: anywhere;
+}
+
+/* assistant / 成员正文：无气泡、无边框，整列直排 */
+.msg { min-width: 0; }
+.msg + .msg, .flow-gap { margin-top: 6px; }
+.msg.member { margin-top: 12px; }
+.msg.member.cont { margin-top: 6px; }
+.member-head {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 2px; min-width: 0;
+}
+.avatar {
+  width: 20px; height: 20px; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--role) 16%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--role) 34%, transparent);
+  color: color-mix(in srgb, var(--role) 74%, var(--dsw-alias-label-primary));
+  font-size: 10px; line-height: 1; font-weight: 700;
+}
+.avatar.sm { width: 24px; height: 24px; font-size: 11px; }
+.role-lead { --role: var(--role-lead); }
+.role-pm { --role: var(--role-pm); }
+.role-designer { --role: var(--role-designer); }
+.role-fullstack { --role: var(--role-fullstack); }
+.role-tester { --role: var(--role-tester); }
+.role-system { --role: var(--role-system); }
+.member-name { font-size: 12px; line-height: 18px; font-weight: 600; color: var(--dsw-alias-label-secondary); }
+.member-time {
+  font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.member-body, .assistant-body {
+  min-width: 0;
+  font-size: 14px; line-height: 24px;
+  color: var(--dsw-alias-label-primary);
+}
+
+/* 用户消息：右对齐胶囊，无头像 */
+.msg.user {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+  margin-top: 12px;
+}
+.bubble {
+  max-width: min(82%, 100%);
+  padding: 10px 16px;
+  border-radius: var(--dsw-radius-xl);
+  background: var(--dsw-specific-bubble);
+  color: var(--dsw-alias-label-primary);
+  font-size: 14px; line-height: 22px;
+  white-space: pre-wrap; word-break: break-word;
+}
+.user-time {
+  font-size: 11px; line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* markdown 子集（数值来自 docs/dsh-ui-style-spec.md §8） */
+.md { min-width: 0; overflow-wrap: anywhere; }
+.md > * { margin: 0; }
+.md > * + * { margin-top: 16px; }
+.md p { margin: 16px 0; }
+.md h1 { margin: 32px 0 16px; font-size: 21px; line-height: 30px; font-weight: 700; }
+.md h2 { margin: 32px 0 16px; font-size: 19px; line-height: 28px; font-weight: 700; }
+.md h3 { margin: 32px 0 16px; font-size: 18px; line-height: 26px; font-weight: 700; }
+.md h4 { margin: 16px 0; font-size: 16px; line-height: 24px; font-weight: 600; }
+.md > :first-child { margin-top: 0; }
+.md > :last-child { margin-bottom: 0; }
+.md strong { font-weight: 600; }
+.md ul, .md ol { margin: 16px 0; padding-left: 18px; }
+.md li + li { margin-top: 6px; }
+.md li::marker { color: var(--dsw-alias-label-secondary); line-height: 24px; }
+.md blockquote {
+  margin: 16px 0 0; padding-left: 14px;
+  border-left: 2px solid var(--dsw-alias-label-caption);
+  color: var(--dsw-alias-label-secondary);
+}
+.md code {
+  padding: 0 5px;
+  border: 0.5px solid var(--dsw-alias-border-l1);
+  border-radius: var(--dsw-radius-sm);
+  background: var(--dsw-alias-markdown-inline-code);
+  font-family: var(--font-mono);
+  font-size: .875em;
+}
+.md a { font-weight: 500; text-decoration: none; }
+.md a:hover, .md a:focus-visible { text-decoration: underline dotted; text-underline-offset: 3px; }
+.md .codeblock {
+  max-width: 100%;
+  border: 0.5px solid var(--dsw-alias-border-l1);
+  border-radius: var(--dsw-radius-lg);
+  background: var(--dsw-alias-markdown-code-block);
+  overflow: hidden;
+}
+.md .codeblock-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 9px 14px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+  background: var(--dsw-alias-markdown-code-block-banner);
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px; line-height: 18px;
+}
+.md pre {
+  margin: 0; padding: 16px;
+  overflow-x: auto; overflow-y: hidden;
+  color: var(--dsw-alias-label-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px; line-height: 19px;
+  white-space: pre;
+}
+.md .tablewrap { max-width: 100%; overflow-x: auto; }
+.md table { border-collapse: collapse; width: max-content; max-width: max-content; }
+.md th, .md td {
+  padding: 10px 16px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+  font-size: 13px; line-height: 22px;
+  text-align: left;
+  min-width: 100px;
+}
+.md th { font-weight: 500; border-bottom-color: var(--dsw-alias-border-l3); }
+.md th:first-child, .md td:first-child { padding-left: 0; }
+.md td:last-child, .md th:last-child { padding-right: 0; }
+.md hr { height: 0.5px; margin: 32px 0; border: 0; background: var(--dsw-alias-border-l2); }
+
+/* 工具 / 派单行：24px 紧凑行 */
+.tool-row {
+  width: 100%; min-height: 24px;
+  display: flex; align-items: center; gap: 6px;
+  padding: 0; border: 0; background: transparent;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 13px; line-height: 24px;
+  text-align: left; cursor: pointer;
+}
+.tool-row:hover, .tool-row:focus-visible { color: var(--dsw-alias-label-secondary); }
+.tool-row + .tool-row, .tool-row + .tool-detail { margin-top: 6px; }
+.tool-icon {
+  width: 16px; height: 16px; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.tool-icon svg { width: 14px; height: 14px; }
+.tool-title { flex: none; }
+.tool-summary { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tool-detail {
+  max-width: 100%;
+  padding: 12px 16px;
+  border: 0.5px solid var(--dsw-alias-border-l1);
+  border-radius: var(--dsw-radius-lg);
+  background: var(--dsw-alias-markdown-code-block);
+  color: var(--dsw-alias-label-tertiary);
+  font-family: var(--font-mono);
+  font-size: 11px; line-height: 16px;
+  max-height: 150px; overflow: auto;
+  overflow-wrap: anywhere;
+}
+
+/* “已完成，用时”折叠行（DSH TurnTail） */
+.turn-done {
+  width: 100%; min-height: 33px;
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 0 8px; margin-top: 12px;
+  border: 0; border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+  background: transparent;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 14px; line-height: 24px;
+  text-align: left; cursor: pointer;
+}
+.turn-done:hover { color: var(--dsw-alias-label-secondary); }
+.turn-done .duration { font-variant-numeric: tabular-nums; }
+.turn-done .chev { margin-left: auto; transition: transform 120ms ease; }
+.turn-done[aria-expanded="true"] .chev { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .turn-done .chev { transition: none; } }
+
+/* 流式 */
+.streaming-text { font-size: 14px; line-height: 24px; color: var(--dsw-alias-label-primary); }
+.typing {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 4px;
+  font-size: 11px; line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+}
+.typing .dots { display: inline-flex; gap: 2px; }
+.typing .dots i {
+  width: 3px; height: 3px; border-radius: 50%;
+  background: currentColor;
+  animation: blink 1.2s infinite ease-in-out;
+}
+.typing .dots i:nth-child(2) { animation-delay: .15s; }
+.typing .dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes blink { 0%, 60%, 100% { opacity: .2; } 30% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .typing .dots i { animation: none; opacity: .8; }
+}
+
+/* 底部状态条：单行、常驻、不遮挡最后一条消息 */
+.statusbar {
+  flex: none;
+  display: flex; align-items: center; gap: 6px;
+  min-height: 30px;
+  padding: 6px 16px calc(6px + env(safe-area-inset-bottom));
+  border-top: 0.5px solid var(--dsw-alias-border-l1);
+  background: var(--dsw-alias-bg-base);
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px; line-height: 18px;
+}
+.statusbar .status-icon { flex: none; display: inline-flex; color: inherit; }
+.statusbar .status-text {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.statusbar .status-hint {
+  margin-left: auto; flex: none;
+  color: var(--dsw-alias-label-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 阶段门 / 任务 / 成员 */
+.gate-list, .task-list, .member-list { list-style: none; margin: 0; padding: 0; }
+.gate {
+  display: flex; gap: 10px;
+  padding: 10px 8px;
+  border-radius: var(--dsw-radius-sm);
+  min-width: 0;
+}
+.gate + .gate { margin-top: 2px; }
+.gate.now { background: color-mix(in srgb, var(--dsw-alias-link) 8%, transparent); }
+.gate-mark {
+  width: 20px; height: 20px; flex: none; margin-top: 2px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  border: 0.5px solid var(--dsw-alias-border-l3);
+  color: var(--dsw-alias-label-caption);
+  font-size: 11px; line-height: 1;
+}
+.gate.done .gate-mark {
+  color: var(--dsw-alias-state-success-primary);
+  border-color: color-mix(in srgb, var(--dsw-alias-state-success-primary) 40%, transparent);
+}
+.gate.now .gate-mark {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-label-primary);
+  border-color: var(--dsw-alias-label-primary);
+}
+.gate.now .gate-mark span { color: var(--dsw-alias-bg-base); }
+.gate-main { min-width: 0; flex: 1 1 auto; }
+.gate-title {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px;
+  font-size: 13px; line-height: 20px;
+}
+.gate-title b { font-weight: 600; }
+.gate-count { font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary); }
+.gate-desc { margin: 2px 0 0; font-size: 12px; line-height: 18px; color: var(--dsw-alias-label-tertiary); }
+.gate-flag {
+  flex: none; align-self: flex-start;
+  padding: 0 6px;
+  border-radius: var(--dsw-radius-xs);
+  background: var(--dsw-alias-interactive-bg-hover);
+  font-size: 11px; line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+}
+.notice {
+  margin-top: 14px; padding: 10px 12px;
+  border: 0.5px dashed var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-sm);
+  font-size: 12px; line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+}
+.notice.warn { color: var(--dsw-alias-state-warn-primary); border-color: color-mix(in srgb, var(--dsw-alias-state-warn-primary) 34%, transparent); }
+
+.task {
+  display: flex; gap: 10px;
+  padding: 10px 0;
+  min-width: 0;
+}
+.task + .task { border-top: 0.5px solid var(--dsw-alias-border-l1); }
+.dot {
+  width: 7px; height: 7px; flex: none; margin-top: 7px;
+  border-radius: 50%;
+  background: var(--dsw-alias-label-caption);
+}
+.dot.done { background: var(--dsw-alias-state-success-primary); }
+.dot.doing { background: var(--dsw-alias-link); }
+.dot.blocked { background: var(--dsw-alias-state-warn-primary); }
+.task-main { min-width: 0; flex: 1 1 auto; }
+.task-title {
+  font-size: 13px; line-height: 20px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; overflow-wrap: anywhere;
+}
+.task-id { font-weight: 600; color: var(--dsw-alias-label-secondary); }
+.task-meta {
+  margin-top: 2px;
+  font-size: 11px; line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+  overflow-wrap: anywhere;
+}
+.tag {
+  display: inline-block;
+  margin-left: 4px; padding: 0 5px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-xs);
+  font-size: 10px; line-height: 16px;
+  color: var(--dsw-alias-label-tertiary);
+}
+.tag.blocked { color: var(--dsw-alias-state-warn-primary); border-color: color-mix(in srgb, var(--dsw-alias-state-warn-primary) 34%, transparent); }
+
+.member-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 0;
+  min-width: 0;
+}
+.member-row + .member-row { border-top: 0.5px solid var(--dsw-alias-border-l1); }
+.member-row .dot { margin-top: 10px; }
+.member-row .avatar { margin-top: 2px; }
+.member-main { min-width: 0; flex: 1 1 auto; }
+.member-title { display: flex; align-items: baseline; gap: 6px; font-size: 13px; line-height: 20px; }
+.member-title b { font-weight: 600; }
+.member-title .role { font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary); }
+.member-meta { margin-top: 2px; font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary); overflow-wrap: anywhere; }
+.member-meta.warn { color: var(--dsw-alias-state-warn-primary); }
+.empty {
+  padding: 32px 16px; text-align: center;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px; line-height: 20px;
+}
+
+/* 项目抽屉（手机内底部弹层） */
+.drawer-layer { position: absolute; inset: 0; z-index: 30; display: flex; flex-direction: column; justify-content: flex-end; }
+.drawer-layer[hidden] { display: none; }
+.drawer-mask {
+  position: absolute; inset: 0;
+  border: 0; padding: 0;
+  background: color-mix(in srgb, var(--dsw-alias-label-primary) 38%, transparent);
+  opacity: 0; transition: opacity 180ms ease;
+  cursor: pointer;
+}
+.sheet {
+  position: relative;
+  max-height: 70%;
+  display: flex; flex-direction: column;
+  border-radius: var(--dsw-radius-xl) var(--dsw-radius-xl) 0 0;
+  background: var(--dsw-alias-bg-layer-1);
+  border-top: 0.5px solid var(--dsw-alias-border-l1);
+  transform: translateY(100%);
+  transition: transform 180ms ease;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.drawer-layer[data-open="true"] .drawer-mask { opacity: 1; }
+.drawer-layer[data-open="true"] .sheet { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  .drawer-mask, .sheet { transition: none; }
+}
+.sheet-grab { width: 36px; height: 4px; margin: 8px auto 0; border-radius: 2px; background: var(--dsw-alias-border-l3); flex: none; }
+.sheet-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px 6px 16px;
+  flex: none;
+}
+.sheet-head h2 { margin: 0; flex: 1 1 auto; font-size: 15px; line-height: 22px; font-weight: 700; }
+.sheet-list { list-style: none; margin: 0; padding: 0 8px 8px; overflow-y: auto; min-height: 0; }
+.project-item {
+  width: 100%; min-height: 56px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  padding: 8px 10px;
+  border: 0.5px solid transparent;
+  border-radius: var(--dsw-radius-sm);
+  background: transparent;
+  text-align: left; cursor: pointer;
+}
+.project-item + .project-item { margin-top: 2px; }
+.project-item:hover { background: var(--dsw-alias-interactive-bg-hover); }
+.project-item.current { border-color: var(--dsw-alias-border-l2); background: var(--dsw-alias-interactive-bg-hover); }
+.project-item .pi-name { display: flex; align-items: center; gap: 6px; max-width: 100%; font-size: 13px; line-height: 20px; font-weight: 600; }
+.project-item .pi-name .tick { flex: none; color: var(--dsw-alias-link); }
+.project-item .pi-name span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.project-item .pi-meta { font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary); }
+.sheet-empty { padding: 24px 16px; text-align: center; color: var(--dsw-alias-label-tertiary); font-size: 12px; }
+
+/* 手机内 toast */
+.toast {
+  position: absolute; left: 50%; bottom: calc(46px + env(safe-area-inset-bottom));
+  z-index: 40;
+  max-width: calc(100% - 32px);
+  transform: translate(-50%, 8px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+  padding: 8px 12px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-sm);
+  background: var(--dsw-alias-bg-layer-2);
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px; line-height: 18px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.toast[data-show="true"] { opacity: 1; transform: translate(-50%, 0); }
+@media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+
+/* ------------------------------ 正文文档区 ------------------------------ */
+.section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 8px;
+}
+.section h2 { margin: 0 0 8px; font-size: 18px; line-height: 28px; font-weight: 700; }
+.section > p { margin: 0 0 16px; max-width: 840px; font-size: 13px; line-height: 22px; color: var(--dsw-alias-label-secondary); }
+.section h3 { margin: 24px 0 8px; font-size: 14px; line-height: 24px; font-weight: 700; }
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px; line-height: 20px;
+}
+.spec-table th, .spec-table td {
+  padding: 8px 10px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+  text-align: left;
+  vertical-align: top;
+}
+.spec-table th { color: var(--dsw-alias-label-secondary); font-weight: 500; border-bottom-color: var(--dsw-alias-border-l2); }
+.spec-table td { color: var(--dsw-alias-label-secondary); }
+.spec-table td b { color: var(--dsw-alias-label-primary); font-weight: 600; }
+.spec-table code, .code-inline {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 0 4px;
+  border-radius: var(--dsw-radius-xs);
+  background: var(--dsw-alias-markdown-inline-code);
+  overflow-wrap: anywhere;
+}
+.state-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.state-card {
+  min-width: 0;
+  padding: 14px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-md);
+  background: var(--dsw-alias-bg-layer-1);
+}
+.state-kicker { font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary); }
+.state-title { margin-top: 2px; font-size: 13px; line-height: 20px; font-weight: 600; }
+.state-card p { margin: 6px 0 0; font-size: 12px; line-height: 20px; color: var(--dsw-alias-label-secondary); overflow-wrap: anywhere; }
+.state-meta { margin-top: 8px; font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary); }
+@media (max-width: 899px) { .state-grid { grid-template-columns: minmax(0, 1fr); } }
+.checklist { margin: 8px 0 0; padding-left: 20px; font-size: 13px; line-height: 24px; color: var(--dsw-alias-label-secondary); }
+.checklist li::marker { color: var(--dsw-alias-state-success-primary); }
+.note-list { margin: 8px 0 0; padding-left: 20px; font-size: 13px; line-height: 24px; color: var(--dsw-alias-label-secondary); }
+.table-scroll { width: 100%; overflow-x: auto; }
+@media (max-width: 640px) {
+  .spec-table, .spec-table thead, .spec-table tbody, .spec-table tr, .spec-table th, .spec-table td { display: block; width: 100%; }
+  .spec-table thead { display: none; }
+  .spec-table tr { padding: 10px 0; border-bottom: 0.5px solid var(--dsw-alias-border-l2); }
+  .spec-table tr:last-child { border-bottom: 0; }
+  .spec-table td { display: flex; gap: 10px; padding: 2px 0; border: 0; overflow-wrap: anywhere; }
+  .spec-table td::before {
+    content: attr(data-label);
+    flex: 0 0 64px;
+    color: var(--dsw-alias-label-tertiary);
+    font-size: 11px; line-height: 20px;
+  }
+  .spec-table td[data-label=""]::before { display: none; }
+}
+.foot { max-width: 1200px; margin: 0 auto; padding: 24px 24px 48px; font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary); }
+
+/* ------------------------------ 桌面三栏缩略 ------------------------------ */
+.desk-wrap {
+  width: 100%;
+  overflow: hidden;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-lg);
+  background: var(--dsw-alias-bg-base);
+}
+.desk-frame {
+  width: 1280px; height: 760px;
+  transform-origin: top left;
+  display: flex; flex-direction: column;
+  background: var(--dsw-alias-bg-base);
+  color: var(--dsw-alias-label-primary);
+  font-size: 13px; line-height: 20px;
+  overflow: hidden;
+}
+.desk-head {
+  flex: none; height: 52px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 16px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+}
+.desk-head h1 { margin: 0; font-size: 15px; line-height: 22px; font-weight: 700; white-space: nowrap; }
+.desk-crumb { font-size: 12px; line-height: 20px; color: var(--dsw-alias-label-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.desk-head .spacer { flex: 1 1 auto; }
+.desk-body { flex: 1 1 auto; min-height: 0; display: flex; }
+.desk-teams {
+  width: 196px; flex: none;
+  border-right: 0.5px solid var(--dsw-alias-border-l1);
+  padding: 10px 8px; overflow-y: auto;
+}
+.desk-label { font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-secondary); margin: 0 0 8px 2px; }
+.team-btn {
+  width: 100%; display: block; text-align: left;
+  padding: 8px; margin-bottom: 2px;
+  border: 0.5px solid transparent; border-radius: var(--dsw-radius-sm);
+  background: transparent; cursor: pointer;
+}
+.team-btn:hover { background: var(--dsw-alias-interactive-bg-hover); }
+.team-btn.current { background: var(--dsw-alias-interactive-bg-hover); border-color: var(--dsw-alias-border-l2); }
+.team-btn .tn { font-size: 12px; line-height: 18px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.team-btn .tm { font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.desk-chat { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; border-right: 0.5px solid var(--dsw-alias-border-l1); }
+.desk-chat .stream { padding: 16px 24px 20px; }
+.desk-column { max-width: 760px; margin: 0 auto; width: 100%; }
+.desk-side { width: 252px; flex: none; padding: 12px; overflow-y: auto; }
+.desk-side-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+.desk-side-tabs button {
+  min-height: 28px; padding: 0 8px;
+  border: 0.5px solid var(--dsw-alias-border-l1);
+  border-radius: var(--dsw-radius-sm);
+  background: transparent; color: var(--dsw-alias-label-secondary);
+  font-size: 11px; line-height: 18px; cursor: pointer;
+}
+.desk-side-tabs button.current { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); font-weight: 600; }
+.desk-side h3 { margin: 4px 0 8px; font-size: 12px; line-height: 20px; font-weight: 700; }
+.desk-side .gate { padding: 4px 0; }
+.desk-side .gate-main .gate-title { font-size: 12px; line-height: 18px; }
+.desk-side .gate-desc { font-size: 11px; line-height: 16px; }
+.desk-caption { margin: 8px 0 0; font-size: 11px; line-height: 18px; color: var(--dsw-alias-label-tertiary); }
+
+/* ------------------------------ 窄屏：页面本身也不横溢 ------------------------------ */
+@media (max-width: 479px) {
+  .doc-head, .section, .foot { padding-left: 14px; padding-right: 14px; }
+  .stage { padding-left: 0; padding-right: 0; gap: 10px; }
+  .stage-tools { padding: 0 14px; }
+  .stage-note { padding: 0 14px; text-align: left; }
+  .phone { width: 100vw; max-width: 100%; height: 844px; border: 0; border-radius: 0; }
+  .doc-title { font-size: 21px; line-height: 30px; }
+  .seg .btn { padding: 0 8px; }
+  .spec-table th, .spec-table td { padding: 6px 6px; }
+}
+</style>
+</head>
+<body>
+
+<header class="doc-head">
+  <div class="doc-kicker">
+    <span>DevBot v0.5</span><span class="dotsep">/</span>
+    <span>阶段 3 · 前端设计</span><span class="dotsep">/</span>
+    <span>design/mobile-workbench.html</span>
+  </div>
+  <h1 class="doc-title">移动端工作台 <span>· 390×844 高保真</span></h1>
+  <p class="doc-sub">单栏 IA：44–48px 顶栏（返回 / 项目 ▾ / 刷新）+ 四段 tab（群聊 / 阶段门 / 任务 / 成员）+ DSH 同族群聊时间线 + 底部单行加载状态条。深色默认，浅色只换 token；可切 tab、开项目抽屉、演示上滑加载。</p>
+  <div class="doc-actions">
+    <button class="btn" type="button" id="themeBtn" aria-pressed="false">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="3.2"/><path d="M8 1.2v1.6M8 13.2v1.6M1.2 8h1.6M13.2 8h1.6M3.2 3.2l1.1 1.1M11.7 11.7l1.1 1.1M12.8 3.2l-1.1 1.1M4.3 11.7l-1.1 1.1"/></svg>
+      <span id="themeLabel">切到浅色</span>
+    </button>
+    <button class="btn" type="button" id="resetDemo">重置演示状态</button>
+  </div>
+</header>
+
+<main>
+  <section class="stage" aria-label="手机高保真">
+    <div class="stage-tools">
+      <div class="seg" role="group" aria-label="检查宽度">
+        <button class="btn" type="button" data-width="375" aria-pressed="false">375</button>
+        <button class="btn" type="button" data-width="390" aria-pressed="true">390</button>
+        <button class="btn" type="button" data-width="430" aria-pressed="false">430</button>
+      </div>
+      <button class="btn" type="button" id="topDemo">演示上滑加载</button>
+      <div class="hud" id="hud" data-pass="true" role="status" aria-live="polite">测量中…</div>
+    </div>
+
+    <div class="phone-shell">
+      <div class="phone" id="phone">
+        <div class="devbot-root" id="app">
+          <!-- 顶栏 -->
+          <header class="appbar">
+            <button class="iconbtn" type="button" id="backBtn" aria-label="返回会话">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg>
+            </button>
+            <button class="project-btn" type="button" id="projectBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="drawerLayer">
+              <span class="name" id="projectName">移动端 UI 重设计</span>
+              <svg class="caret" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 4.5 3 3 3-3"/></svg>
+            </button>
+            <button class="iconbtn" type="button" id="refreshBtn" aria-label="刷新" title="刷新">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.2 8.4A6.4 6.4 0 1 0 16 12"/><path d="M16.4 4.6v4h-4"/></svg>
+            </button>
+          </header>
+
+          <!-- 四段 tab -->
+          <nav class="tabs" role="tablist" aria-label="工作台视图">
+            <button class="tab" type="button" role="tab" id="tab-chat" aria-controls="view-chat" aria-selected="true" data-view="chat">群聊</button>
+            <button class="tab" type="button" role="tab" id="tab-gates" aria-controls="view-gates" aria-selected="false" data-view="gates">阶段门</button>
+            <button class="tab" type="button" role="tab" id="tab-tasks" aria-controls="view-tasks" aria-selected="false" data-view="tasks">任务</button>
+            <button class="tab" type="button" role="tab" id="tab-members" aria-controls="view-members" aria-selected="false" data-view="members">成员</button>
+          </nav>
+
+          <div class="views">
+            <!-- 群聊 -->
+            <section class="view" id="view-chat" role="tabpanel" aria-labelledby="tab-chat" data-view="chat">
+              <div class="stream" id="stream" tabindex="0" aria-label="群聊时间线，可滚动">
+                <div class="day">昨天</div>
+
+                <div class="sys">
+                  <button class="sys-row" type="button" aria-expanded="false" data-toggle="sys-member">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="5.2" r="2.6"/><path d="M3 13.2c.5-2.4 2.6-3.7 5-3.7s4.5 1.3 5 3.7"/></svg>
+                    <span class="sys-text">成员 pm 已就绪 · 历史已打开</span>
+                  </button>
+                  <div class="sys-detail" id="sys-member" hidden>团队成员来自 Team 投影；历史按成员会话增量 retain，不复制群日志。</div>
+                </div>
+
+                <article class="msg member" style="margin-top:12px">
+                  <header class="member-head">
+                    <span class="avatar role-pm" aria-hidden="true">P</span>
+                    <span class="member-name">pm</span>
+                    <time class="member-time">21:14</time>
+                  </header>
+                  <div class="md member-body">
+                    <h2>v0.5 信息架构确认</h2>
+                    <ul>
+                      <li>手机 &lt;560：顶栏 + 四段 tab + 单视图，群聊默认</li>
+                      <li>560–899：两栏，项目列表收进顶栏下拉</li>
+                      <li>≥900：三栏不变，只升级时间线视觉</li>
+                    </ul>
+                    <p>门禁条件：两份 HTML 覆盖 <code>375/390/430</code> 与深/浅色，且不改 controller 语义。</p>
+                  </div>
+                </article>
+
+                <button class="tool-row" type="button" aria-expanded="false" data-toggle="tool-dispatch" style="margin-top:6px">
+                  <span class="tool-icon" aria-hidden="true">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5h11M2.5 8h7M2.5 11.5h5"/><path d="m11.5 10.5 2 2 2-2" transform="translate(-1.5 -1)"/></svg>
+                  </span>
+                  <span class="tool-title">派单 · PM</span>
+                  <span class="tool-summary">→ designer · 移动端工作台 + 会话历史高保真</span>
+                </button>
+                <div class="tool-detail" id="tool-dispatch" hidden>task-3 · 交付 design/mobile-workbench.html + design/conversation-style.html · 覆盖 390/375/430 + 深/浅色</div>
+
+                <div class="sys" style="margin-top:6px">
+                  <button class="sys-row" type="button" aria-expanded="false" data-toggle="sys-task3">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M3 8.5 6.2 12 13 4.5"/></svg>
+                    <span class="sys-text">任务 task-3「设计移动端工作台」→ 进行中</span>
+                  </button>
+                  <div class="sys-detail" id="sys-task3" hidden>进行中 · designer · 阶段 3 · 设计稿完成后由 Lead approve 才进 task-4 实现。</div>
+                </div>
+
+                <div class="day">今天</div>
+
+                <div class="sys">
+                  <button class="sys-row" type="button" aria-expanded="false" data-toggle="sys-gate">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M2.5 13V3M2.5 3h9l-1.6 2.6L11.5 8h-9"/></svg>
+                    <span class="sys-text">门禁 · 阶段 3/5 前端设计 · 1 个任务被阻塞</span>
+                  </button>
+                  <div class="sys-detail" id="sys-gate" hidden>task-4「实现 client.js v0.5」等待 task-3 完成；阻塞不会影响历史读取与切 tab。</div>
+                </div>
+
+                <article class="msg member" style="margin-top:12px">
+                  <header class="member-head">
+                    <span class="avatar role-designer" aria-hidden="true">D</span>
+                    <span class="member-name">designer</span>
+                    <time class="member-time">09:32</time>
+                  </header>
+                  <div class="md member-body">
+                    <h2>单栏 IA 定稿</h2>
+                    <ul>
+                      <li>390 宽消息列 = 容器宽 − <code>32px</code>，不再二次居中</li>
+                      <li>群聊 / 阶段门 / 任务 / 成员四段 tab，高 44px</li>
+                      <li>底部状态条 <code>white-space:nowrap</code>，禁止逐字竖排</li>
+                    </ul>
+                  </div>
+                </article>
+
+                <article class="msg member cont">
+                  <div class="md member-body">
+                    <p>时间线与 DSH 主会话对齐，关键 token：</p>
+                    <div class="codeblock">
+                      <div class="codeblock-head"><span>css</span><span>design/dsh-ui-style-spec.md</span></div>
+                      <pre>.member-body { font-size: 14px; line-height: 24px }
+.bubble { background: var(--dsw-specific-bubble);
+  border-radius: var(--dsw-radius-xl); }</pre>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="msg user">
+                  <div class="bubble">手机上先保证群聊可读；底部加载状态条别竖排，代码块允许在消息内横滚。</div>
+                  <time class="user-time">10:02</time>
+                </article>
+
+                <article class="msg member" style="margin-top:12px">
+                  <header class="member-head">
+                    <span class="avatar role-fullstack" aria-hidden="true">F</span>
+                    <span class="member-name">fullstack</span>
+                    <time class="member-time">10:05</time>
+                  </header>
+                  <div class="md member-body">
+                    <p>实现侧已对齐：<strong>assistant 无气泡</strong>，用户胶囊上限 82%；连续发送者只按 <code>senderId + time + 跨日</code> 合并头部。</p>
+                    <blockquote>保留 stick / loadOlder / settle 语义，不回写数据层。</blockquote>
+                  </div>
+                </article>
+
+                <article class="msg member cont">
+                  <div class="member-body">
+                    <div class="streaming-text">正在跑 390/375/430 三档截图与 safe-area 自查…</div>
+                    <div class="typing" aria-label="对方正在输入"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>输入中</span></div>
+                  </div>
+                </article>
+
+                <button class="turn-done" type="button" aria-expanded="false" data-toggle="turn-done">
+                  <svg class="chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg>
+                  <span>已完成，用时 <span class="duration">2 分 08 秒</span></span>
+                </button>
+                <div class="sys-detail" id="turn-done" hidden>本轮 3 个过程行：读取 PRD → 核对 DSH token → 产出两份 HTML；耗时不含截图自查。</div>
+              </div>
+
+              <div class="statusbar" id="statusbar" data-state="more">
+                <span class="status-icon" aria-hidden="true">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5V3.5M4.5 7 8 3.5 11.5 7"/></svg>
+                </span>
+                <span class="status-text" id="statusText">上滑加载更早消息（6 条会话窗口）</span>
+                <span class="status-hint" id="statusHint">已贴底</span>
+              </div>
+            </section>
+
+            <!-- 阶段门 -->
+            <section class="view" id="view-gates" role="tabpanel" aria-labelledby="tab-gates" data-view="gates" hidden>
+              <div class="view-scroll">
+                <div class="view-head">
+                  <h2>阶段门</h2>
+                  <span class="meta">当前 3/5 · 前端设计</span>
+                </div>
+                <ol class="gate-list">
+                  <li class="gate done">
+                    <span class="gate-mark" aria-hidden="true">✓</span>
+                    <div class="gate-main">
+                      <div class="gate-title"><b>1. 需求分析</b><span class="gate-count">2/2 完成</span></div>
+                      <p class="gate-desc">Lead 对齐方向，approve 进规划</p>
+                    </div>
+                  </li>
+                  <li class="gate done">
+                    <span class="gate-mark" aria-hidden="true">✓</span>
+                    <div class="gate-main">
+                      <div class="gate-title"><b>2. 产品规划</b><span class="gate-count">1/1 完成</span></div>
+                      <p class="gate-desc">PM 输出 PRD，不过度设计</p>
+                    </div>
+                  </li>
+                  <li class="gate now">
+                    <span class="gate-mark" aria-hidden="true"><span>▶</span></span>
+                    <div class="gate-main">
+                      <div class="gate-title"><b>3. 前端设计</b><span class="gate-count">0/1 完成</span><span class="gate-flag">进行中</span></div>
+                      <p class="gate-desc">Designer 出 html 高保真 + PM 评审 approve</p>
+                    </div>
+                  </li>
+                  <li class="gate">
+                    <span class="gate-mark" aria-hidden="true">○</span>
+                    <div class="gate-main">
+                      <div class="gate-title"><b>4. 代码实现</b><span class="gate-count">0/1 等待</span></div>
+                      <p class="gate-desc">Fullstack 按 Issue 实现，群贴 RUN-id + 摘要</p>
+                    </div>
+                  </li>
+                  <li class="gate">
+                    <span class="gate-mark" aria-hidden="true">○</span>
+                    <div class="gate-main">
+                      <div class="gate-title"><b>5. 测试验证</b><span class="gate-count">0/1 等待</span></div>
+                      <p class="gate-desc">Tester 逐条验收，打回 block 后续</p>
+                    </div>
+                  </li>
+                </ol>
+                <div class="notice warn">1 个任务被阻塞：task-4 等待 task-3 完成设计 approve。</div>
+              </div>
+            </section>
+
+            <!-- 任务 -->
+            <section class="view" id="view-tasks" role="tabpanel" aria-labelledby="tab-tasks" data-view="tasks" hidden>
+              <div class="view-scroll">
+                <div class="view-head">
+                  <h2>任务板</h2>
+                  <span class="meta">6 项 · 2 进行中</span>
+                </div>
+                <ul class="task-list">
+                  <li class="task">
+                    <span class="dot done" aria-hidden="true"></span>
+                    <div class="task-main">
+                      <div class="task-title"><span class="task-id">task-1</span> [需求] DevBot v0.5 移动端 UI 重设计 + 会话历史风格统一</div>
+                      <div class="task-meta">已完成 · Lead · 阶段 1</div>
+                    </div>
+                  </li>
+                  <li class="task">
+                    <span class="dot done" aria-hidden="true"></span>
+                    <div class="task-main">
+                      <div class="task-title"><span class="task-id">task-2</span> [规划] v0.5 移动端信息架构与交互 PRD</div>
+                      <div class="task-meta">已完成 · pm · 阶段 2</div>
+                    </div>
+                  </li>
+                  <li class="task">
+                    <span class="dot doing" aria-hidden="true"></span>
+                    <div class="task-main">
+                      <div class="task-title"><span class="task-id">task-3</span> [设计] 移动端工作台 + 会话历史高保真 HTML</div>
+                      <div class="task-meta">进行中 · designer2 · 阶段 3</div>
+                    </div>
+                  </li>
+                  <li class="task">
+                    <span class="dot blocked" aria-hidden="true"></span>
+                    <div class="task-main">
+                      <div class="task-title"><span class="task-id">task-4</span> [实现] client.js v0.5 响应式工作台 + DSH 风格时间线：容器查询三断点、markdown 子集、成员头合并、Playwright 回归</div>
+                      <div class="task-meta">待办 · 等待 task-3 · 阶段 4 <span class="tag blocked">被阻塞</span></div>
+                    </div>
+                  </li>
+                  <li class="task">
+                    <span class="dot" aria-hidden="true"></span>
+                    <div class="task-main">
+                      <div class="task-title"><span class="task-id">task-5</span> [测试] v0.5 响应式与时间线验收</div>
+                      <div class="task-meta">待办 · tester · 阶段 5</div>
+                    </div>
+                  </li>
+                  <li class="task">
+                    <span class="dot" aria-hidden="true"></span>
+                    <div class="task-main">
+                      <div class="task-title"><span class="task-id">task-6</span> [实现] 移动端断点与 markdown 渲染单测</div>
+                      <div class="task-meta">待办 · fullstack · 阶段 4</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </section>
+
+            <!-- 成员 -->
+            <section class="view" id="view-members" role="tabpanel" aria-labelledby="tab-members" data-view="members" hidden>
+              <div class="view-scroll">
+                <div class="view-head">
+                  <h2>成员</h2>
+                  <span class="meta">5 人 · 2 运行中</span>
+                </div>
+                <ul class="member-list">
+                  <li class="member-row">
+                    <span class="dot done" aria-hidden="true"></span>
+                    <span class="avatar sm role-lead" aria-hidden="true">L</span>
+                    <div class="member-main">
+                      <div class="member-title"><b>Lead</b><span class="role">lead</span></div>
+                      <div class="member-meta">已就绪 · 历史已打开 · 本轮主会话</div>
+                    </div>
+                  </li>
+                  <li class="member-row">
+                    <span class="dot done" aria-hidden="true"></span>
+                    <span class="avatar sm role-pm" aria-hidden="true">P</span>
+                    <div class="member-main">
+                      <div class="member-title"><b>pm</b><span class="role">产品经理</span></div>
+                      <div class="member-meta">已就绪 · 历史已打开 · PRD 已交付</div>
+                    </div>
+                  </li>
+                  <li class="member-row">
+                    <span class="dot doing" aria-hidden="true"></span>
+                    <span class="avatar sm role-designer" aria-hidden="true">D</span>
+                    <div class="member-main">
+                      <div class="member-title"><b>designer2</b><span class="role">UI 设计师</span></div>
+                      <div class="member-meta">已就绪 · 运行中 · 正在产出两份 HTML</div>
+                    </div>
+                  </li>
+                  <li class="member-row">
+                    <span class="dot doing" aria-hidden="true"></span>
+                    <span class="avatar sm role-fullstack" aria-hidden="true">F</span>
+                    <div class="member-main">
+                      <div class="member-title"><b>fullstack</b><span class="role">全栈</span></div>
+                      <div class="member-meta">运行中 · 等待设计 approve 后进 task-4</div>
+                    </div>
+                  </li>
+                  <li class="member-row">
+                    <span class="dot blocked" aria-hidden="true"></span>
+                    <span class="avatar sm role-tester" aria-hidden="true">T</span>
+                    <div class="member-main">
+                      <div class="member-title"><b>tester</b><span class="role">测试</span></div>
+                      <div class="member-meta warn">历史打开失败：session/agent-busy，稍后重试；不阻塞群聊</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </section>
+          </div>
+
+          <!-- 项目抽屉 -->
+          <div class="drawer-layer" id="drawerLayer" hidden>
+            <button class="drawer-mask" type="button" id="drawerMask" aria-label="关闭项目列表"></button>
+            <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" id="drawerSheet">
+              <div class="sheet-grab" aria-hidden="true"></div>
+              <div class="sheet-head">
+                <h2 id="drawerTitle">DevBot 项目</h2>
+                <button class="iconbtn" type="button" id="drawerClose" aria-label="关闭">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg>
+                </button>
+              </div>
+              <ul class="sheet-list">
+                <li>
+                  <button class="project-item current" type="button" data-project="移动端 UI 重设计">
+                    <span class="pi-name"><svg class="tick" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.4 6.2 12 13 4.5"/></svg><span>移动端 UI 重设计</span></span>
+                    <span class="pi-meta">5 人 · 5 任务 · 2 进行中 · 运行中</span>
+                  </button>
+                </li>
+                <li>
+                  <button class="project-item" type="button" data-project="支付流程重构">
+                    <span class="pi-name"><span>支付流程重构</span></span>
+                    <span class="pi-meta">4 人 · 6 任务 · 1 进行中</span>
+                  </button>
+                </li>
+                <li>
+                  <button class="project-item" type="button" data-project="文档站改版">
+                    <span class="pi-name"><span>文档站改版</span></span>
+                    <span class="pi-meta">3 人 · 2 任务</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="toast" id="toast" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+    <p class="stage-note">窄屏（&lt;480px）下手机框等于视口宽，390/375/430 直接用浏览器宽度检查；宽屏用上方 375/390/430 切换。项目抽屉为交互演示，示例时间线不随项目切换。</p>
+  </section>
+
+  <section class="section" aria-labelledby="desk-title">
+    <h2 id="desk-title">桌面三栏 · 缩略对照（1280×760）</h2>
+    <p>≥900px 保持 v0.4 三栏：项目列表 196 + 群聊 flex + 信息区 252；只把时间线换成 DSH 同族样式。缩略图按容器宽等比缩放，便于和手机单栏对照。</p>
+    <div class="desk-wrap" id="deskWrap">
+      <div class="desk-frame" id="deskFrame" aria-label="桌面三栏缩略">
+        <header class="desk-head">
+          <h1>DevBot 工作台</h1>
+          <span class="desk-crumb">移动端 UI 重设计 · 阶段 3/5</span>
+          <span class="spacer"></span>
+          <button class="btn" type="button" tabindex="-1">刷新</button>
+          <button class="btn" type="button" tabindex="-1">回到会话</button>
+        </header>
+        <div class="desk-body">
+          <aside class="desk-teams">
+            <div class="desk-label">DevBot 项目（按最近活动）</div>
+            <button class="team-btn current" type="button" tabindex="-1">
+              <div class="tn">移动端 UI 重设计</div>
+              <div class="tm">5 人 · 5 任务 · 2 进行中 · 运行中</div>
+            </button>
+            <button class="team-btn" type="button" tabindex="-1">
+              <div class="tn">支付流程重构</div>
+              <div class="tm">4 人 · 6 任务 · 1 进行中</div>
+            </button>
+            <button class="team-btn" type="button" tabindex="-1">
+              <div class="tn">文档站改版</div>
+              <div class="tm">3 人 · 2 任务</div>
+            </button>
+          </aside>
+          <div class="desk-chat">
+            <div class="stream">
+              <div class="desk-column">
+                <div class="day" style="margin-top:0">今天</div>
+                <article class="msg member">
+                  <header class="member-head">
+                    <span class="avatar role-pm" aria-hidden="true">P</span>
+                    <span class="member-name">pm</span>
+                    <time class="member-time">21:14</time>
+                  </header>
+                  <div class="md member-body">
+                    <h2>v0.5 信息架构确认</h2>
+                    <ul>
+                      <li>手机 &lt;560：顶栏 + 四段 tab + 单视图</li>
+                      <li>560–899：两栏，项目列表收进顶栏下拉</li>
+                      <li>≥900：三栏不变，只升级时间线视觉</li>
+                    </ul>
+                  </div>
+                </article>
+                <button class="tool-row" type="button" tabindex="-1" style="margin-top:6px">
+                  <span class="tool-icon" aria-hidden="true">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5h11M2.5 8h7M2.5 11.5h5"/></svg>
+                  </span>
+                  <span class="tool-title">派单 · PM</span>
+                  <span class="tool-summary">→ designer · 移动端工作台 + 会话历史高保真</span>
+                </button>
+                <article class="msg member" style="margin-top:12px">
+                  <header class="member-head">
+                    <span class="avatar role-designer" aria-hidden="true">D</span>
+                    <span class="member-name">designer</span>
+                    <time class="member-time">09:32</time>
+                  </header>
+                  <div class="md member-body">
+                    <h3>单栏 IA 定稿</h3>
+                    <ul>
+                      <li>390 宽消息列 = 容器宽 − <code>32px</code></li>
+                      <li>四段 tab 高 44px，选中加粗 + 2px 指示条</li>
+                      <li>底部状态条单行省略，禁止竖排</li>
+                    </ul>
+                  </div>
+                </article>
+                <article class="msg user">
+                  <div class="bubble">手机上先保证群聊可读；底部加载状态条别竖排，代码块允许在消息内横滚。</div>
+                  <time class="user-time">10:02</time>
+                </article>
+                <article class="msg member" style="margin-top:12px">
+                  <header class="member-head">
+                    <span class="avatar role-fullstack" aria-hidden="true">F</span>
+                    <span class="member-name">fullstack</span>
+                    <time class="member-time">10:05</time>
+                  </header>
+                  <div class="member-body">
+                    <div class="streaming-text">正在核对底部状态条与 safe-area 叠加，顺便跑 390/375/430 三档截图…</div>
+                    <div class="typing" aria-label="对方正在输入"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>输入中</span></div>
+                  </div>
+                </article>
+              </div>
+            </div>
+            <div class="statusbar">
+              <span class="status-icon" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5V3.5M4.5 7 8 3.5 11.5 7"/></svg>
+              </span>
+              <span class="status-text">上滑加载更早消息（6 条会话窗口）</span>
+              <span class="status-hint">已贴底</span>
+            </div>
+          </div>
+          <aside class="desk-side">
+            <div class="desk-side-tabs">
+              <button class="current" type="button" tabindex="-1">阶段门</button>
+              <button type="button" tabindex="-1">任务</button>
+              <button type="button" tabindex="-1">成员</button>
+            </div>
+            <h3>阶段门 · Phase Gates</h3>
+            <div class="gate done"><span class="gate-mark" aria-hidden="true">✓</span><div class="gate-main"><div class="gate-title"><b>1. 需求分析</b><span class="gate-count">2/2</span></div><p class="gate-desc">Lead 对齐方向</p></div></div>
+            <div class="gate done"><span class="gate-mark" aria-hidden="true">✓</span><div class="gate-main"><div class="gate-title"><b>2. 产品规划</b><span class="gate-count">1/1</span></div><p class="gate-desc">PM 输出 PRD</p></div></div>
+            <div class="gate now"><span class="gate-mark" aria-hidden="true"><span>▶</span></span><div class="gate-main"><div class="gate-title"><b>3. 前端设计</b><span class="gate-count">0/1</span></div><p class="gate-desc">Designer 出 html 高保真</p></div></div>
+            <div class="gate"><span class="gate-mark" aria-hidden="true">○</span><div class="gate-main"><div class="gate-title"><b>4. 代码实现</b><span class="gate-count">0/1</span></div><p class="gate-desc">Fullstack 按 Issue 实现</p></div></div>
+            <div class="gate"><span class="gate-mark" aria-hidden="true">○</span><div class="gate-main"><div class="gate-title"><b>5. 测试验证</b><span class="gate-count">0/1</span></div><p class="gate-desc">Tester 逐条验收</p></div></div>
+          </aside>
+        </div>
+      </div>
+    </div>
+    <p class="desk-caption">三栏宽度 196 / flex / 252；群聊内容列 max-width 760 居中（桌面阅读宽度）。手机单栏复用同一套时间线组件，只改外层 IA。</p>
+  </section>
+
+  <section class="section" aria-labelledby="breakpoint-title">
+    <h2 id="breakpoint-title">断点与 IA（按容器宽，不按视口）</h2>
+    <div class="table-scroll">
+    <table class="spec-table">
+      <thead><tr><th>容器宽</th><th>布局</th><th>项目切换</th><th>群聊</th><th>信息区</th></tr></thead>
+      <tbody>
+        <tr><td><b>≥900</b></td><td>三栏 196 / flex / 252</td><td>左栏常驻</td><td>中栏，新时间线</td><td>右栏常驻，内部分段</td></tr>
+        <tr><td><b>560–899</b></td><td>两栏：群聊 + 信息区 252</td><td>顶栏项目名 → 浮层</td><td>主栏，独立滚动 + 状态条</td><td>右栏常驻</td></tr>
+        <tr><td><b>&lt;560</b></td><td>单栏：顶栏 + 四段 tab</td><td>顶栏项目名 → 底部抽屉</td><td>默认 tab，独立滚动 + 状态条</td><td>提升为整页 tab</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <h3>实现要点（供 task-4 参考）</h3>
+    <ul class="note-list">
+      <li><code class="code-inline">.devbot-root { container-type: inline-size }</code>，三断点用 <code class="code-inline">@container</code>；不用 viewport media query。</li>
+      <li>群聊是唯一滚动容器：<code class="code-inline">flex:1; min-height:0; overflow-y:auto</code>；顶栏 / tab / 状态条 <code class="code-inline">flex:none</code>。</li>
+      <li>状态条 <code class="code-inline">white-space:nowrap + min-width:0 + text-overflow:ellipsis</code>；底部叠加 <code class="code-inline">env(safe-area-inset-bottom)</code>。</li>
+      <li>切 tab 只 toggle <code class="code-inline">hidden</code>，四视图保持挂载，scrollTop 天然保留；切回群聊仅在原贴底时回到底部。</li>
+      <li>固定件尺寸：顶栏 48 · 分段 tab 44 · 底部状态条 30（+ safe-area）；列表行 ≥56，可点元素 ≥40×40。</li>
+      <li>项目抽屉高 ≤ 70%，内部滚动；点遮罩 / 关闭 / Esc 关闭且不切换；当前项加勾。</li>
+      <li>切项目后时间线回新项目最新；示例稿不切换示例数据，交互仅演示 IA。</li>
+    </ul>
+  </section>
+
+  <section class="section" aria-labelledby="state-title">
+    <h2 id="state-title">状态与空态（单栏）</h2>
+    <p>所有状态都不阻断返回 / 刷新 / 切 tab；错误用次要文字色，不用模态弹窗。以下为 390 宽下的文案与密度示例。</p>
+    <div class="state-grid">
+      <div class="state-card">
+        <div class="state-kicker">群聊空态</div>
+        <div class="state-title">还没有群聊内容</div>
+        <p>先开一个 Team 会话，用 <code class="code-inline">spawn_teammate</code> 起 pm / designer / fullstack / tester；或从会话 header 的 DevBot 按钮查看当前阶段门。</p>
+        <div class="state-meta">最多 3 行引导 · 不显示输入框</div>
+      </div>
+      <div class="state-card">
+        <div class="state-kicker">列表暂不可读</div>
+        <div class="state-title">正在重新连接…</div>
+        <p>保留现有项目列表与时间线内容，不误判为空；重连成功后按最近活动恢复选中。</p>
+        <div class="state-meta">错误用次要文字色 · 不弹窗</div>
+      </div>
+      <div class="state-card">
+        <div class="state-kicker">成员历史失败</div>
+        <div class="state-title">tester · 历史打开失败</div>
+        <p>session/agent-busy，稍后重试；只在该成员行标注，群聊继续读取已打开成员，不阻塞切 tab。</p>
+        <div class="state-meta">失败原因可换行 · 不裁切</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="check-title">
+    <h2 id="check-title">设计自查（截图时自动测量）</h2>
+    <ul class="checklist">
+      <li>页面 <code class="code-inline">scrollWidth ≤ clientWidth</code>；工作台内部同样无横溢。</li>
+      <li>群聊列宽 ≥ 280（390 宽时约 358）；状态条单行，高度 ≤ 24。</li>
+      <li>四段 tab 标签不换行、不竖排；长标题两行截断；长代码块消息内横滚。</li>
+      <li>触控目标：顶栏按钮 / tab / 项目项 ≥ 40×40（宽屏手机框时）。</li>
+      <li>深 / 浅色只切 token，组件规则无硬编码颜色；角色色只用于头像底 + 字母。</li>
+    </ul>
+  </section>
+
+  <footer class="foot">
+    DevBot v0.5 · 前端设计阶段 · 本文件为静态高保真（无外部 CDN / 无依赖），数值基线见 docs/dsh-ui-style-spec.md。
+  </footer>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var $ = function (sel, root) { return (root || document).querySelector(sel); };
+  var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+
+  var app = $('#app');
+  var phone = $('#phone');
+  var stream = $('#stream');
+  var statusbar = $('#statusbar');
+  var statusText = $('#statusText');
+  var statusHint = $('#statusHint');
+  var hud = $('#hud');
+
+  var hasMore = true;
+  var loadingOlder = false;
+  var stick = true;
+
+  /* ---------------- 状态条与滚动 ---------------- */
+  function setStatus(text, hint) {
+    statusText.textContent = text;
+    statusHint.textContent = hint || '';
+    statusbar.dataset.state = hint === '已贴底' ? 'bottom' : (loadingOlder ? 'loading' : 'more');
+  }
+
+  function chatMetrics() {
+    var max = Math.max(0, stream.scrollHeight - stream.clientHeight);
+    return { max: max, top: stream.scrollTop, atBottom: max - stream.scrollTop < 64 };
+  }
+
+  function syncStatus() {
+    if (loadingOlder) { setStatus('正在加载更早消息…', '加载中'); return; }
+    var m = chatMetrics();
+    stick = m.atBottom;
+    if (!hasMore) setStatus('已到当前会话窗口最早处', '已到底');
+    else if (m.atBottom) setStatus('上滑加载更早消息（6 条会话窗口）', '已贴底');
+    else setStatus('上滑加载更早消息（6 条会话窗口）', '');
+  }
+
+  function toBottom() { stream.scrollTop = stream.scrollHeight; syncStatus(); measure(); }
+
+  stream.addEventListener('scroll', function () {
+    var m = chatMetrics();
+    stick = m.atBottom;
+    if (stream.scrollTop < 48 && hasMore && !loadingOlder) {
+      loadingOlder = true;
+      setStatus('正在加载更早消息…', '加载中');
+      window.setTimeout(function () {
+        loadingOlder = false;
+        hasMore = false;
+        syncStatus();
+        toast('已到当前会话窗口最早处');
+      }, 900);
+      return;
+    }
+    syncStatus();
+    measure();
+  }, { passive: true });
+
+  /* ---------------- 四段 tab ---------------- */
+  var tabs = $$('.tab');
+  var views = $$('.view');
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      tabs.forEach(function (b) {
+        var on = b === tab;
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+        b.classList.toggle('active', on);
+      });
+      views.forEach(function (v) {
+        v.hidden = v.getAttribute('data-view') !== tab.getAttribute('data-view');
+      });
+      if (tab.getAttribute('data-view') === 'chat' && stick) requestAnimationFrame(toBottom);
+      measure();
+    });
+  });
+
+  /* ---------------- 可展开的紧凑行 ---------------- */
+  $$('[data-toggle]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var target = document.getElementById(btn.getAttribute('data-toggle'));
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+      if (target) target.hidden = open;
+      measure();
+    });
+  });
+
+  /* ---------------- 项目抽屉 ---------------- */
+  var layer = $('#drawerLayer');
+  var projectBtn = $('#projectBtn');
+  var projectName = $('#projectName');
+  var currentProject = projectName.textContent;
+  var lastFocus = null;
+
+  function openDrawer() {
+    lastFocus = document.activeElement;
+    layer.hidden = false;
+    layer.setAttribute('data-open', 'false');
+    projectBtn.setAttribute('aria-expanded', 'true');
+    requestAnimationFrame(function () {
+      layer.setAttribute('data-open', 'true');
+      var first = $('.project-item', layer);
+      if (first) first.focus();
+    });
+  }
+  function closeDrawer() {
+    layer.setAttribute('data-open', 'false');
+    projectBtn.setAttribute('aria-expanded', 'false');
+    window.setTimeout(function () { layer.hidden = true; }, 180);
+    if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+  }
+  projectBtn.addEventListener('click', function () {
+    if (layer.hidden) openDrawer(); else closeDrawer();
+  });
+  $('#drawerMask').addEventListener('click', closeDrawer);
+  $('#drawerClose').addEventListener('click', closeDrawer);
+  layer.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { e.preventDefault(); closeDrawer(); }
+  });
+  $$('.project-item', layer).forEach(function (item) {
+    item.addEventListener('click', function () {
+      var name = item.getAttribute('data-project');
+      currentProject = name;
+      projectName.textContent = name;
+      $$('.project-item', layer).forEach(function (p) { p.classList.toggle('current', p === item); });
+      closeDrawer();
+      toast('已切换到「' + name + '」');
+    });
+  });
+
+  /* ---------------- 顶栏动作 ---------------- */
+  $('#backBtn').addEventListener('click', function () { toast('返回 DSH 会话面板'); });
+  var refreshBtn = $('#refreshBtn');
+  refreshBtn.addEventListener('click', function () {
+    if (refreshBtn.getAttribute('data-busy') === 'true') return;
+    refreshBtn.setAttribute('data-busy', 'true');
+    refreshBtn.setAttribute('aria-busy', 'true');
+    toast('正在刷新会话…内容与滚动位置保留');
+    window.setTimeout(function () {
+      refreshBtn.setAttribute('data-busy', 'false');
+      refreshBtn.removeAttribute('aria-busy');
+      toast('已刷新：内容未清空，仍在原位置');
+    }, 900);
+  });
+
+  /* ---------------- toast ---------------- */
+  var toastEl = $('#toast');
+  var toastTimer = 0;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.setAttribute('data-show', 'true');
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(function () { toastEl.setAttribute('data-show', 'false'); }, 1800);
+  }
+
+  /* ---------------- 主题 ---------------- */
+  var themeBtn = $('#themeBtn');
+  var themeLabel = $('#themeLabel');
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    var dark = theme === 'dark';
+    themeBtn.setAttribute('aria-pressed', dark ? 'false' : 'true');
+    themeLabel.textContent = dark ? '切到浅色' : '切到深色';
+    measure();
+  }
+  themeBtn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    toast(next === 'dark' ? '已切到深色' : '已切到浅色');
+  });
+
+  /* ---------------- 宽度切换（宽屏时生效） ---------------- */
+  var widthBtns = $$('[data-width]');
+  widthBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      widthBtns.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+      var w = btn.getAttribute('data-width');
+      document.documentElement.style.setProperty('--phone-w', w + 'px');
+      measure();
+    });
+  });
+
+  /* ---------------- 演示：上滑加载 ---------------- */
+  $('#topDemo').addEventListener('click', function () {
+    if (loadingOlder) return;
+    if (!hasMore) { hasMore = true; setStatus('上滑加载更早消息（6 条会话窗口）', ''); }
+    stream.scrollTop = 0;
+    loadingOlder = true;
+    setStatus('正在加载更早消息…', '加载中');
+    window.setTimeout(function () {
+      loadingOlder = false;
+      hasMore = false;
+      syncStatus();
+      toast('已到当前会话窗口最早处');
+      measure();
+    }, 900);
+  });
+
+  /* ---------------- 重置 ---------------- */
+  $('#resetDemo').addEventListener('click', function () {
+    hasMore = true;
+    loadingOlder = false;
+    stick = true;
+    currentProject = '移动端 UI 重设计';
+    projectName.textContent = currentProject;
+    $$('.project-item', layer).forEach(function (p) {
+      p.classList.toggle('current', p.getAttribute('data-project') === currentProject);
+    });
+    if (!layer.hidden) closeDrawer();
+    tabs[0].click();
+    syncStatus();
+    requestAnimationFrame(toBottom);
+    applyTheme('dark');
+    toast('已重置演示状态');
+  });
+
+  /* ---------------- 规格表：窄屏卡片式标签 ---------------- */
+  $$('.spec-table').forEach(function (table) {
+    var labels = $$('thead th', table).map(function (th) { return th.textContent.trim(); });
+    $$('tbody tr', table).forEach(function (tr) {
+      $$('td', tr).forEach(function (td, i) { td.setAttribute('data-label', labels[i] || ''); });
+    });
+  });
+
+  /* ---------------- 桌面缩略缩放 ---------------- */
+  function fitDesk() {
+    var wrap = $('#deskWrap');
+    var frame = $('#deskFrame');
+    if (!wrap || !frame) return;
+    var scale = Math.min(1, wrap.clientWidth / 1280);
+    frame.style.transform = 'scale(' + scale + ')';
+    wrap.style.height = Math.round(760 * scale) + 'px';
+  }
+
+  /* ---------------- 自查测量 ---------------- */
+  function measure() {
+    var doc = document.documentElement;
+    var pageOk = doc.scrollWidth <= doc.clientWidth + 1;
+    var appOk = app.scrollWidth <= app.clientWidth + 1;
+    var phoneW = Math.round(phone.getBoundingClientRect().width);
+    var streamW = Math.round(stream.clientWidth);
+    var streamH = Math.round(stream.clientHeight);
+    var statusBox = statusbar.getBoundingClientRect();
+    var statusH = Math.round(statusBox.height);
+    var statusSingle = statusbar.scrollWidth <= statusbar.clientWidth + 1 && statusH <= 40;
+    var tabsSingle = $$('.tab').every(function (t) { return t.scrollWidth <= t.clientWidth + 1; });
+    var ok = pageOk && appOk && statusSingle && tabsSingle && streamW >= 200;
+    var mark = function (v) { return v ? '<span class="ok">✓</span>' : '<span class="bad">✗</span>'; };
+    hud.innerHTML = '<b>' + phoneW + 'px</b> 手机 · 页面 ' + doc.scrollWidth + '/' + doc.clientWidth + ' ' + mark(pageOk)
+      + ' · 工作台 ' + app.clientWidth + '/' + app.clientWidth + ' ' + mark(appOk)
+      + ' · 群聊 ' + streamW + '×' + streamH + ' ' + mark(streamW >= 200 && streamH >= 300)
+      + ' · 状态条单行 ' + mark(statusSingle)
+      + ' · tab 不换行 ' + mark(tabsSingle);
+    hud.setAttribute('data-pass', ok ? 'true' : 'false');
+  }
+
+  var raf = 0;
+  function scheduleMeasure() {
+    window.cancelAnimationFrame(raf);
+    raf = window.requestAnimationFrame(measure);
+  }
+  window.addEventListener('resize', function () { fitDesk(); scheduleMeasure(); });
+
+  /* ---------------- 启动 ---------------- */
+  applyTheme('dark');
+  fitDesk();
+  requestAnimationFrame(function () {
+    toBottom();
+    measure();
+  });
+  window.addEventListener('load', function () { fitDesk(); measure(); });
+})();
+</script>
+</body>
+</html>
